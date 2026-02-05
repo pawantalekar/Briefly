@@ -1,0 +1,268 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { categoryService } from '../services/api';
+import RichTextEditor from '../components/editor/RichTextEditor';
+import PageTransition from '../components/common/PageTransition';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import type { Category } from '../types';
+
+const EditBlog = () => {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [formData, setFormData] = useState({
+        title: '',
+        content: '',
+        excerpt: '',
+        category_id: '',
+        cover_image: '',
+    });
+    const [updatedAt, setUpdatedAt] = useState<string>('');
+
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        fetchBlogAndCategories();
+    }, [id]);
+
+    const fetchBlogAndCategories = async () => {
+        try {
+            setLoading(true);
+            const [blogData, categoriesData] = await Promise.all([
+                fetch(`http://localhost:5000/api/blogs/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                }).then(res => res.json()),
+                categoryService.getAllCategories()
+            ]);
+
+            if (blogData.success) {
+                const blog = blogData.data;
+                setFormData({
+                    title: blog.title,
+                    content: blog.content,
+                    excerpt: blog.excerpt || '',
+                    category_id: blog.category_id,
+                    cover_image: blog.cover_image || '',
+                });
+                setUpdatedAt(blog.updated_at);
+            }
+            setCategories(categoriesData);
+        } catch (error) {
+            console.error('Error fetching blog:', error);
+            setError('Failed to load blog');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setSubmitting(true);
+
+        if (!formData.title || !formData.content || !formData.category_id) {
+            setError('Please fill in all required fields');
+            setSubmitting(false);
+            return;
+        }
+
+        try {
+            const updateData = {
+                title: formData.title,
+                content: formData.content,
+                excerpt: formData.excerpt || formData.content.substring(0, 150),
+                category_id: formData.category_id,
+                cover_image: formData.cover_image || undefined,
+            };
+
+            await fetch(`http://localhost:5000/api/blogs/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to update blog. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    return (
+        <PageTransition>
+            <div className="min-h-screen bg-gray-50 py-12">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-white rounded-2xl shadow-lg p-8">
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900">Edit Blog Post</h1>
+                            <p className="text-gray-600 mt-2">Update your blog content and settings</p>
+                            {updatedAt && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Last updated: {new Date(updatedAt).toLocaleString('en-US', {
+                                        month: 'long',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </p>
+                            )}
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Title *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    placeholder="Enter your blog title"
+                                    required
+                                />
+                            </div>
+
+
+                            <div>
+                                <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Category *
+                                </label>
+                                <select
+                                    id="category_id"
+                                    name="category_id"
+                                    value={formData.category_id}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    required
+                                >
+                                    <option value="">Select a category</option>
+                                    {categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+
+                            <div>
+                                <label htmlFor="cover_image" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Cover Image URL
+                                </label>
+                                <input
+                                    type="url"
+                                    id="cover_image"
+                                    name="cover_image"
+                                    value={formData.cover_image}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                            </div>
+
+
+                            <div>
+                                <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Excerpt
+                                </label>
+                                <textarea
+                                    id="excerpt"
+                                    name="excerpt"
+                                    value={formData.excerpt}
+                                    onChange={handleChange}
+                                    rows={3}
+                                    className="input-field resize-none"
+                                    placeholder="Brief summary of your blog post (optional)"
+                                />
+                            </div>
+
+
+                            <div>
+                                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Content *
+                                </label>
+                                <RichTextEditor
+                                    value={formData.content}
+                                    onChange={(value) => setFormData({ ...formData, content: value })}
+                                />
+                            </div>
+
+
+                            <div className="flex items-center justify-between pt-6 border-t">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/dashboard')}
+                                    className="btn-secondary"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="btn-primary"
+                                >
+                                    {submitting ? (
+                                        <span className="flex items-center">
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Updating...
+                                        </span>
+                                    ) : (
+                                        'Update Blog'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </PageTransition>
+    );
+};
+
+export default EditBlog;
