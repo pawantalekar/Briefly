@@ -19,8 +19,8 @@ const StockTicker = () => {
         { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 720.45, change: 12.30, changePercent: 1.74 },
         { symbol: 'NFLX', name: 'Netflix Inc.', price: 625.80, change: -2.40, changePercent: -0.38 },
     ]);
-    // Get your free API key from https://finnhub.io/register
-    const FINNHUB_API_KEY = 'd62ct41r01qlugepice0d62ct41r01qlugepiceg'; // Demo key - replace with your own
+    
+    const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY;
 
     const symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'];
 

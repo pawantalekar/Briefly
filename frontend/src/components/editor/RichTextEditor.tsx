@@ -93,7 +93,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                                 if (line.startsWith('- ')) return <li key={i} className="ml-4">{line.substring(2)}</li>;
 
 
-                                let formattedLine = line
+                                const formattedLine = line
                                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                                     .replace(/\*(.*?)\*/g, '<em>$1</em>')
                                     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-primary-600 hover:underline">$1</a>');
