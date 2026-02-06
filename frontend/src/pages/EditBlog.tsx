@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { categoryService } from '../services/api';
+import { blogService, categoryService } from '../services/api';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -26,24 +26,19 @@ const EditBlog = () => {
         try {
             setLoading(true);
             const [blogData, categoriesData] = await Promise.all([
-                await fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    }
-                }).then(res => res.json()),
+                blogService.getBlogById(id as string),
                 categoryService.getAllCategories()
             ]);
 
-            if (blogData.success) {
-                const blog = blogData.data;
+            if (blogData) {
                 setFormData({
-                    title: blog.title,
-                    content: blog.content,
-                    excerpt: blog.excerpt || '',
-                    category_id: blog.category_id,
-                    cover_image: blog.cover_image || '',
+                    title: blogData.title,
+                    content: blogData.content,
+                    excerpt: blogData.excerpt || '',
+                    category_id: blogData.category.id,
+                    cover_image: blogData.cover_image || '',
                 });
-                setUpdatedAt(blog.updated_at);
+                setUpdatedAt(blogData.updated_at);
             }
             setCategories(categoriesData);
         } catch (error) {
@@ -91,14 +86,7 @@ const EditBlog = () => {
                 cover_image: formData.cover_image || undefined,
             };
 
-            await fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                },
-                body: JSON.stringify(updateData)
-            });
+            await blogService.updateBlog(id as string, updateData);
 
             navigate('/dashboard');
         } catch (err) {
@@ -108,14 +96,6 @@ const EditBlog = () => {
             setSubmitting(false);
         }
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            </div>
-        );
-    }
 
     if (loading) {
         return <LoadingSpinner />;

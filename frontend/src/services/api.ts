@@ -6,7 +6,10 @@ export const blogService = {
         const response = await apiClient.get<{ success: boolean; data: Blog[] }>('/blogs', { params });
         return response.data.data;
     },
-
+    getBlogById: async (id: string) => {
+        const response = await apiClient.get<{ success: boolean; data: Blog }>(`/blogs/${id}`);
+        return response.data.data;
+    },
     getBlogBySlug: async (slug: string) => {
         const response = await apiClient.get<{ success: boolean; data: Blog }>(`/blogs/slug/${slug}`);
         return response.data.data;
@@ -19,6 +22,11 @@ export const blogService = {
 
     getMyBlogs: async () => {
         const response = await apiClient.get<{ success: boolean; data: Blog[] }>('/blogs/my/blogs');
+        return response.data.data;
+    },
+
+    updateBlog: async (id: string, data: Partial<CreateBlogDTO>) => {
+        const response = await apiClient.put<{ success: boolean; data: Blog }>(`/blogs/${id}`, data);
         return response.data.data;
     },
 };
