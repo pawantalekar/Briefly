@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { blogService } from '../services/api';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import type { Blog } from '../types';
+import type { Blog, User } from '../types';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -24,7 +24,7 @@ const Dashboard = () => {
         }
 
         fetchMyBlogs();
-    }, []);
+    }, [navigate]);
 
     const fetchMyBlogs = async () => {
         try {

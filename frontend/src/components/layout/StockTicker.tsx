@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface StockData {
     symbol: string;
@@ -19,11 +19,12 @@ const StockTicker = () => {
         { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 720.45, change: 12.30, changePercent: 1.74 },
         { symbol: 'NFLX', name: 'Netflix Inc.', price: 625.80, change: -2.40, changePercent: -0.38 },
     ]);
-    // Get your free API key from https://finnhub.io/register
-    const FINNHUB_API_KEY = 'd62ct41r01qlugepice0d62ct41r01qlugepiceg'; // Demo key - replace with your own
+    
+    const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY;
 
-    const symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'];
+    const symbols = useMemo(() => ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'], []);
 
+    useEffect(() => {
     const fetchStockData = async () => {
         try {
             const stockPromises = symbols.map(async (symbol) => {
@@ -51,17 +52,23 @@ const StockTicker = () => {
             // Keep existing data if fetch fails
         }
     };
+    
 
-    useEffect(() => {
-        fetchStockData(); // Initial fetch
+   
+        const initialFetch = setTimeout(() => {
+            fetchStockData();
+        }, 100);
 
         // Update every 60 seconds (free tier limit)
         const interval = setInterval(() => {
             fetchStockData();
         }, 60000);
 
-        return () => clearInterval(interval);
-    }, []);
+        return () => {
+            clearTimeout(initialFetch);
+            clearInterval(interval);
+        };
+    }, [FINNHUB_API_KEY,symbols]);
 
     return (
         <div className="bg-gray-900 text-white py-2 overflow-hidden border-b border-gray-700">
