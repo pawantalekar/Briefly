@@ -26,7 +26,7 @@ const CreateBlog = () => {
             return;
         }
         fetchCategories();
-    }, []);
+    }, [navigate]);
 
     const fetchCategories = async () => {
         try {
@@ -69,8 +69,9 @@ const CreateBlog = () => {
 
             const blog = await blogService.createBlog(blogData);
             navigate(`/blog/${blog.slug}`);
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to create blog. Please try again.');
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Failed to create blog. Please try again.');
         } finally {
             setLoading(false);
         }

@@ -16,7 +16,7 @@ const Navbar = () => {
                 try {
                     const user = JSON.parse(userStr);
                     setIsAdmin(user.role === 'ADMIN');
-                } catch (e) {
+                } catch {
                     setIsAdmin(false);
                 }
             } else {
@@ -34,6 +34,7 @@ const Navbar = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
         setIsLoggedIn(false);
+        setIsAdmin(false);
         window.location.href = '/';
     };
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { blogService, commentService, likeService } from '../services/api';
 import MarkdownRenderer from '../components/blog/MarkdownRenderer';
@@ -15,13 +15,7 @@ const BlogDetail = () => {
     const [commentText, setCommentText] = useState('');
     const [submittingComment, setSubmittingComment] = useState(false);
 
-    useEffect(() => {
-        if (slug) {
-            fetchBlog();
-        }
-    }, [slug]);
-
-    const fetchBlog = async () => {
+    const fetchBlog = useCallback(async () => {
         try {
             setLoading(true);
             const data = await blogService.getBlogBySlug(slug!);
@@ -35,8 +29,14 @@ const BlogDetail = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [slug]);
 
+    useEffect(() => {
+        if (slug) {
+            fetchBlog();
+        }
+    }, [slug, fetchBlog]);
+    
     const handleLike = async () => {
         if (!blog) return;
 

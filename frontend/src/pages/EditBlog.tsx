@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { categoryService } from '../services/api';
 import RichTextEditor from '../components/editor/RichTextEditor';
@@ -22,17 +22,7 @@ const EditBlog = () => {
     });
     const [updatedAt, setUpdatedAt] = useState<string>('');
 
-    useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            navigate('/login');
-            return;
-        }
-
-        fetchBlogAndCategories();
-    }, [id]);
-
-    const fetchBlogAndCategories = async () => {
+    const fetchBlogAndCategories = useCallback(async () => {
         try {
             setLoading(true);
             const [blogData, categoriesData] = await Promise.all([
@@ -62,7 +52,17 @@ const EditBlog = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        fetchBlogAndCategories();
+    }, [id, fetchBlogAndCategories, navigate]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
@@ -101,8 +101,9 @@ const EditBlog = () => {
             });
 
             navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to update blog. Please try again.');
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Failed to update blog. Please try again.');
         } finally {
             setSubmitting(false);
         }

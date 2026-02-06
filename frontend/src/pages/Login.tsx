@@ -29,9 +29,10 @@ const Login = () => {
             localStorage.setItem('access_token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
             window.dispatchEvent(new Event('storage'));
-            navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Invalid email or password');
+            navigate('/');
+        } catch (err: unknown) {
+            const errorMessage = err && typeof err === 'object' && 'response' in err && err.response && typeof err.response === 'object' && 'data' in err.response && err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data ? String(err.response.data.message) : 'Invalid email or password';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

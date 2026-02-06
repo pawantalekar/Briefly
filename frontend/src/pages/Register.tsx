@@ -47,8 +47,9 @@ const Register = () => {
             localStorage.setItem('user', JSON.stringify(response.user));
             window.dispatchEvent(new Event('storage'));
             navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        } catch (err) {
+            const error = err as { response?: { data?: { message?: string } } };    
+            setError(error.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
