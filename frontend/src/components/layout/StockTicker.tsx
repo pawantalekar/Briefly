@@ -20,7 +20,7 @@ const StockTicker = () => {
         { symbol: 'NFLX', name: 'Netflix Inc.', price: 625.80, change: -2.40, changePercent: -0.38 },
     ]);
     // Get your free API key from https://finnhub.io/register
-    const FINNHUB_API_KEY = 'ctbbkepr01qnaghno1q0ctbbkepr01qnaghno1qg'; // Demo key - replace with your own
+    const FINNHUB_API_KEY = 'd62ct41r01qlugepice0d62ct41r01qlugepiceg'; // Demo key - replace with your own
 
     const symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'];
 

@@ -36,7 +36,7 @@ const EditBlog = () => {
         try {
             setLoading(true);
             const [blogData, categoriesData] = await Promise.all([
-                fetch(`http://localhost:5000/api/blogs/${id}`, {
+                await fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                     }
@@ -91,7 +91,7 @@ const EditBlog = () => {
                 cover_image: formData.cover_image || undefined,
             };
 
-            await fetch(`http://localhost:5000/api/blogs/${id}`, {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
