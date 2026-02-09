@@ -83,3 +83,10 @@ export const likeService = {
         return response.data.data;
     },
 };
+
+export const marketService = {
+    getCryptoData: async () => {
+        const response = await apiClient.get('/market/crypto');
+        return response.data.data;
+    },
+};

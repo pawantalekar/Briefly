@@ -5,6 +5,7 @@ import commentRoutes from '../modules/comment/comment.routes';
 import likeRoutes from '../modules/like/like.routes';
 import categoryRoutes from '../modules/category/category.routes';
 import adminRoutes from '../modules/admin/admin.routes';
+import marketRoutes from '../modules/market/market.routes';
 
 
 const router = Router();
@@ -48,6 +49,7 @@ router.use('/comments', commentRoutes);
 router.use('/likes', likeRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/admin', adminRoutes);
+router.use('/market', marketRoutes);
 
 
 export default router;
