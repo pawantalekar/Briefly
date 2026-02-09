@@ -40,12 +40,12 @@ const Login = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gradient-to-br from-primary-600 via-purple-600 to-pink-500 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-[var(--bg-secondary)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full">
-                    <div className="bg-white rounded-2xl shadow-xl p-8">
+                    <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-8 shadow-sm">
                         <div className="text-center mb-8">
-                            <h2 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h2>
-                            <p className="text-gray-600">Sign in to continue to Briefly</p>
+                            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 font-serif">Welcome Back</h2>
+                            <p className="text-[var(--text-secondary)]">Sign in to continue to Briefly</p>
                         </div>
 
                         {error && (
@@ -56,7 +56,7 @@ const Login = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Email Address
                                 </label>
                                 <input
@@ -72,7 +72,7 @@ const Login = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Password
                                 </label>
                                 <input
@@ -93,14 +93,14 @@ const Login = () => {
                                         id="remember"
                                         name="remember"
                                         type="checkbox"
-                                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                                        className="h-4 w-4 border-[var(--border-color)] rounded bg-[var(--bg-secondary)]"
                                     />
-                                    <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                                    <label htmlFor="remember" className="ml-2 block text-sm text-[var(--text-secondary)]">
                                         Remember me
                                     </label>
                                 </div>
 
-                                <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                                <Link to="/forgot-password" className="text-sm font-medium text-[var(--text-primary)] hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -123,28 +123,28 @@ const Login = () => {
                         <div className="mt-6">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
+                                    <div className="w-full border-t border-[var(--border-color)]" />
                                 </div>
                                 <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-gray-500">New to Briefly?</span>
+                                    <span className="px-2 bg-[var(--bg-primary)] text-[var(--text-secondary)]">New to Briefly?</span>
                                 </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <Link
+                                    to="/register"
+                                    className="w-full flex justify-center py-3 px-4 border border-[var(--border-color)] text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-primary)] transition uppercase tracking-wider"
+                                >
+                                    Create an Account
+                                </Link>
                             </div>
                         </div>
 
-                        <div className="mt-6">
-                            <Link
-                                to="/register"
-                                className="w-full flex justify-center py-3 px-4 border-2 border-primary-600 rounded-lg shadow-sm text-sm font-medium text-primary-600 bg-white hover:bg-primary-50 transition"
-                            >
-                                Create an Account
+                        <div className="text-center mt-6">
+                            <Link to="/" className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] uppercase tracking-wide">
+                                ← Back to Home
                             </Link>
                         </div>
-                    </div>
-
-                    <div className="text-center mt-6">
-                        <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">
-                            ← Back to Home
-                        </Link>
                     </div>
                 </div>
             </div>

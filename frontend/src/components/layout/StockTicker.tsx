@@ -19,42 +19,42 @@ const StockTicker = () => {
         { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 720.45, change: 12.30, changePercent: 1.74 },
         { symbol: 'NFLX', name: 'Netflix Inc.', price: 625.80, change: -2.40, changePercent: -0.38 },
     ]);
-    
+
     const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY;
 
     const symbols = useMemo(() => ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'], []);
 
     useEffect(() => {
-    const fetchStockData = async () => {
-        try {
-            const stockPromises = symbols.map(async (symbol) => {
-                const response = await fetch(
-                    `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`
-                );
-                const data = await response.json();
+        const fetchStockData = async () => {
+            try {
+                const stockPromises = symbols.map(async (symbol) => {
+                    const response = await fetch(
+                        `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`
+                    );
+                    const data = await response.json();
 
-                return {
-                    symbol,
-                    name: symbol,
-                    price: data.c || 0, // current price
-                    change: data.d || 0, // change
-                    changePercent: data.dp || 0, // percent change
-                };
-            });
+                    return {
+                        symbol,
+                        name: symbol,
+                        price: data.c || 0, // current price
+                        change: data.d || 0, // change
+                        changePercent: data.dp || 0, // percent change
+                    };
+                });
 
-            const stockData = await Promise.all(stockPromises);
-            const validStocks = stockData.filter(stock => stock.price > 0);
-            if (validStocks.length > 0) {
-                setStocks(validStocks);
+                const stockData = await Promise.all(stockPromises);
+                const validStocks = stockData.filter(stock => stock.price > 0);
+                if (validStocks.length > 0) {
+                    setStocks(validStocks);
+                }
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+                // Keep existing data if fetch fails
             }
-        } catch (error) {
-            console.error('Error fetching stock data:', error);
-            // Keep existing data if fetch fails
-        }
-    };
-    
+        };
 
-   
+
+
         const initialFetch = setTimeout(() => {
             fetchStockData();
         }, 100);
@@ -68,10 +68,10 @@ const StockTicker = () => {
             clearTimeout(initialFetch);
             clearInterval(interval);
         };
-    }, [FINNHUB_API_KEY,symbols]);
+    }, [FINNHUB_API_KEY, symbols]);
 
     return (
-        <div className="bg-gray-900 text-white py-2 overflow-hidden border-b border-gray-700">
+        <div className="bg-black text-white py-2 overflow-hidden border-b border-gray-800 z-40 relative">
             <div className="ticker-wrapper">
                 <div className="ticker-content">
                     {[...stocks, ...stocks].map((stock, index) => (

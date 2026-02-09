@@ -65,19 +65,19 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
 
 
                         if (cleanLine.startsWith('### ')) {
-                            return <h3 key={lineIndex} className="text-2xl font-bold text-gray-900 mt-8 mb-4">{cleanLine.substring(4)}</h3>;
+                            return <h3 key={lineIndex} className="text-2xl font-bold text-[var(--text-primary)] mt-8 mb-4">{cleanLine.substring(4)}</h3>;
                         }
                         if (cleanLine.startsWith('## ')) {
-                            return <h2 key={lineIndex} className="text-3xl font-bold text-gray-900 mt-10 mb-5">{cleanLine.substring(3)}</h2>;
+                            return <h2 key={lineIndex} className="text-3xl font-bold text-[var(--text-primary)] mt-10 mb-5">{cleanLine.substring(3)}</h2>;
                         }
                         if (cleanLine.startsWith('# ')) {
-                            return <h1 key={lineIndex} className="text-4xl font-bold text-gray-900 mt-12 mb-6">{cleanLine.substring(2)}</h1>;
+                            return <h1 key={lineIndex} className="text-4xl font-bold text-[var(--text-primary)] mt-12 mb-6">{cleanLine.substring(2)}</h1>;
                         }
 
 
                         if (line.startsWith('> ')) {
                             return (
-                                <blockquote key={lineIndex} className="border-l-4 border-primary-500 pl-4 py-2 my-4 italic text-gray-700 bg-gray-50">
+                                <blockquote key={lineIndex} className="border-l-4 border-primary-500 pl-4 py-2 my-4 italic text-[var(--text-secondary)] bg-[var(--bg-secondary)]">
                                     {line.substring(2)}
                                 </blockquote>
                             );
@@ -86,7 +86,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
 
                         if (line.startsWith('- ') || line.startsWith('* ')) {
                             return (
-                                <li key={lineIndex} className="ml-6 my-2 text-gray-700">
+                                <li key={lineIndex} className="ml-6 my-2 text-[var(--text-primary)]">
                                     {formatInlineText(line.substring(2))}
                                 </li>
                             );
@@ -95,7 +95,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
 
                         if (line.trim()) {
                             return (
-                                <p key={lineIndex} className="my-4 text-gray-700 leading-relaxed text-lg">
+                                <p key={lineIndex} className="my-4 text-[var(--text-primary)] leading-relaxed text-lg">
                                     {formatInlineText(line)}
                                 </p>
                             );

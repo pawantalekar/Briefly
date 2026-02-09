@@ -18,6 +18,7 @@ export const createBlogSchema = Joi.object({
     }),
     tags: Joi.array().items(Joi.string().uuid()).optional(),
     is_published: Joi.boolean().optional().default(false),
+    position: Joi.string().valid('featured', 'top', 'standard').default('standard'),
 });
 
 export const updateBlogSchema = Joi.object({
@@ -28,6 +29,7 @@ export const updateBlogSchema = Joi.object({
     category_id: Joi.string().uuid().optional(),
     tags: Joi.array().items(Joi.string().uuid()).optional(),
     is_published: Joi.boolean().optional(),
+    position: Joi.string().valid('featured', 'top', 'standard').optional(),
 }).min(1).messages({
     'object.min': 'At least one field must be provided for update',
 });

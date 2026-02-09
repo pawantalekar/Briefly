@@ -8,6 +8,7 @@ export interface BlogModel {
     author_id: string;
     category_id: string;
     is_published: boolean;
+    position?: 'featured' | 'top' | 'standard';
     published_at?: string;
     views_count?: number;
     likes_count?: number;

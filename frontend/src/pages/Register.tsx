@@ -48,7 +48,7 @@ const Register = () => {
             window.dispatchEvent(new Event('storage'));
             navigate('/dashboard');
         } catch (err) {
-            const error = err as { response?: { data?: { message?: string } } };    
+            const error = err as { response?: { data?: { message?: string } } };
             setError(error.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
@@ -57,12 +57,12 @@ const Register = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-primary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-[var(--bg-secondary)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full">
-                    <div className="bg-white rounded-2xl shadow-xl p-8">
+                    <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-8 shadow-sm">
                         <div className="text-center mb-8">
-                            <h2 className="text-3xl font-bold gradient-text mb-2">Join Briefly</h2>
-                            <p className="text-gray-600">Create your account to start writing</p>
+                            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 font-serif">Join Briefly</h2>
+                            <p className="text-[var(--text-secondary)]">Create your account to start writing</p>
                         </div>
 
                         {error && (
@@ -73,7 +73,7 @@ const Register = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="name" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Full Name
                                 </label>
                                 <input
@@ -89,7 +89,7 @@ const Register = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Email Address
                                 </label>
                                 <input
@@ -105,7 +105,7 @@ const Register = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Password
                                 </label>
                                 <input
@@ -122,7 +122,7 @@ const Register = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                                     Confirm Password
                                 </label>
                                 <input
@@ -143,15 +143,15 @@ const Register = () => {
                                     name="terms"
                                     type="checkbox"
                                     required
-                                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mt-1"
+                                    className="h-4 w-4 border-[var(--border-color)] rounded bg-[var(--bg-secondary)] mt-1"
                                 />
-                                <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+                                <label htmlFor="terms" className="ml-2 block text-sm text-[var(--text-secondary)]">
                                     I agree to the{' '}
-                                    <Link to="/terms" className="text-primary-600 hover:text-primary-500">
+                                    <Link to="/terms" className="text-[var(--text-primary)] hover:underline border-b border-[var(--border-color)]">
                                         Terms of Service
                                     </Link>{' '}
                                     and{' '}
-                                    <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
+                                    <Link to="/privacy" className="text-[var(--text-primary)] hover:underline border-b border-[var(--border-color)]">
                                         Privacy Policy
                                     </Link>
                                 </label>
@@ -175,28 +175,28 @@ const Register = () => {
                         <div className="mt-6">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
+                                    <div className="w-full border-t border-[var(--border-color)]" />
                                 </div>
                                 <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white text-gray-500">Already have an account?</span>
+                                    <span className="px-2 bg-[var(--bg-primary)] text-[var(--text-secondary)]">Already have an account?</span>
                                 </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <Link
+                                    to="/login"
+                                    className="w-full flex justify-center py-3 px-4 border border-[var(--border-color)] text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-primary)] transition uppercase tracking-wider"
+                                >
+                                    Sign In Instead
+                                </Link>
                             </div>
                         </div>
 
-                        <div className="mt-6">
-                            <Link
-                                to="/login"
-                                className="w-full flex justify-center py-3 px-4 border-2 border-primary-600 rounded-lg shadow-sm text-sm font-medium text-primary-600 bg-white hover:bg-primary-50 transition"
-                            >
-                                Sign In Instead
+                        <div className="text-center mt-6">
+                            <Link to="/" className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] uppercase tracking-wide">
+                                ← Back to Home
                             </Link>
                         </div>
-                    </div>
-
-                    <div className="text-center mt-6">
-                        <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">
-                            ← Back to Home
-                        </Link>
                     </div>
                 </div>
             </div>
