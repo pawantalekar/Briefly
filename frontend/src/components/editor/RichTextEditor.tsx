@@ -66,7 +66,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
         const parts = value.split(imageRegex);
 
         return (
-            <div className="prose max-w-none p-4 bg-gray-50 rounded-lg">
+            <div className="prose max-w-none p-4 bg-[var(--bg-secondary)] rounded-lg">
                 {parts.map((part, index) => {
 
                     if (index % 2 === 1) {
@@ -84,13 +84,13 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                         );
                     }
                     return (
-                        <div key={index} className="whitespace-pre-wrap">
+                        <div key={index} className="whitespace-pre-wrap text-[var(--text-primary)]">
                             {part.split('\n').map((line, i) => {
-                                if (line.startsWith('# ')) return <h1 key={i} className="text-3xl font-bold my-4">{line.substring(2)}</h1>;
-                                if (line.startsWith('## ')) return <h2 key={i} className="text-2xl font-bold my-3">{line.substring(3)}</h2>;
-                                if (line.startsWith('### ')) return <h3 key={i} className="text-xl font-bold my-2">{line.substring(4)}</h3>;
-                                if (line.startsWith('> ')) return <blockquote key={i} className="border-l-4 border-gray-300 pl-4 italic my-2">{line.substring(2)}</blockquote>;
-                                if (line.startsWith('- ')) return <li key={i} className="ml-4">{line.substring(2)}</li>;
+                                if (line.startsWith('# ')) return <h1 key={i} className="text-3xl font-bold my-4 text-[var(--text-primary)]">{line.substring(2)}</h1>;
+                                if (line.startsWith('## ')) return <h2 key={i} className="text-2xl font-bold my-3 text-[var(--text-primary)]">{line.substring(3)}</h2>;
+                                if (line.startsWith('### ')) return <h3 key={i} className="text-xl font-bold my-2 text-[var(--text-primary)]">{line.substring(4)}</h3>;
+                                if (line.startsWith('> ')) return <blockquote key={i} className="border-l-4 border-gray-300 pl-4 italic my-2 text-[var(--text-secondary)]">{line.substring(2)}</blockquote>;
+                                if (line.startsWith('- ')) return <li key={i} className="ml-4 text-[var(--text-primary)]">{line.substring(2)}</li>;
 
 
                                 const formattedLine = line
@@ -98,7 +98,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                                     .replace(/\*(.*?)\*/g, '<em>$1</em>')
                                     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-primary-600 hover:underline">$1</a>');
 
-                                return <p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: formattedLine || '<br/>' }} />;
+                                return <p key={i} className="my-1 text-[var(--text-primary)]" dangerouslySetInnerHTML={{ __html: formattedLine || '<br/>' }} />;
                             })}
                         </div>
                     );
@@ -110,14 +110,14 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
     return (
         <div className="space-y-4">
 
-            <div className="bg-white border border-gray-300 rounded-lg p-3 flex flex-wrap gap-2">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-3 flex flex-wrap gap-2">
                 {formatButtons.map((btn, index) => (
                     <button
                         key={index}
                         type="button"
                         onClick={btn.action}
                         title={btn.tooltip}
-                        className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 transition ${btn.bold ? 'font-bold' : ''
+                        className={`px-3 py-1.5 text-sm border border-[var(--border-color)] text-[var(--text-primary)] rounded hover:bg-[var(--bg-secondary)] transition ${btn.bold ? 'font-bold' : ''
                             } ${btn.italic ? 'italic' : ''}`}
                     >
                         {btn.label}
@@ -127,7 +127,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                 <button
                     type="button"
                     onClick={() => setShowImageDialog(true)}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 transition flex items-center gap-1"
+                    className="px-3 py-1.5 text-sm border border-[var(--border-color)] text-[var(--text-primary)] rounded hover:bg-[var(--bg-secondary)] transition flex items-center gap-1"
                     title="Insert Image"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,16 +139,16 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
 
 
             {showImageDialog && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-gray-900">Insert Image</h4>
+                        <h4 className="font-semibold text-[var(--text-primary)]">Insert Image</h4>
                         <button
                             type="button"
                             onClick={() => {
                                 setShowImageDialog(false);
                                 setImageUrl('');
                             }}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -161,7 +161,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                             value={imageUrl}
                             onChange={(e) => setImageUrl(e.target.value)}
                             placeholder="https://example.com/image.jpg"
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                            className="flex-1 px-3 py-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
@@ -181,17 +181,17 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
             )}
 
 
-            <div className="border border-gray-300 rounded-lg overflow-hidden">
-                <div className="flex border-b border-gray-300 bg-gray-50">
+            <div className="border border-[var(--border-color)] rounded-lg overflow-hidden bg-[var(--bg-card)]">
+                <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
                     <button
                         type="button"
-                        className="px-4 py-2 text-sm font-medium border-r border-gray-300 bg-white"
+                        className="px-4 py-2 text-sm font-medium border-r border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)]"
                     >
                         Write
                     </button>
                     <button
                         type="button"
-                        className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                        className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     >
                         Preview
                     </button>
@@ -204,7 +204,7 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
                     onChange={(e) => onChange(e.target.value)}
 
                     rows={15}
-                    className="w-full p-4 font-mono text-sm resize-none outline-none"
+                    className="w-full p-4 font-mono text-sm resize-none outline-none bg-[var(--bg-card)] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
                     placeholder="Write your blog content here...
 
 Use formatting buttons above or markdown:
@@ -223,27 +223,27 @@ Use formatting buttons above or markdown:
 
 
             {value.includes('![') && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-                        <span className="text-sm font-medium text-gray-700">Content Preview</span>
+                <div className="border border-[var(--border-color)] rounded-lg overflow-hidden">
+                    <div className="bg-[var(--bg-secondary)] px-4 py-2 border-b border-[var(--border-color)]">
+                        <span className="text-sm font-medium text-[var(--text-primary)]">Content Preview</span>
                     </div>
                     {renderPreview()}
                 </div>
             )}
 
 
-            <details className="text-sm text-gray-600">
-                <summary className="cursor-pointer hover:text-gray-900">Formatting Guide</summary>
+            <details className="text-sm text-[var(--text-secondary)]">
+                <summary className="cursor-pointer hover:text-[var(--text-primary)]">Formatting Guide</summary>
                 <div className="mt-2 space-y-1 pl-4">
-                    <p><code className="bg-gray-100 px-1 rounded"># Heading 1</code> - Large heading</p>
-                    <p><code className="bg-gray-100 px-1 rounded">## Heading 2</code> - Medium heading</p>
-                    <p><code className="bg-gray-100 px-1 rounded">### Heading 3</code> - Small heading</p>
-                    <p><code className="bg-gray-100 px-1 rounded">**bold**</code> - Bold text</p>
-                    <p><code className="bg-gray-100 px-1 rounded">*italic*</code> - Italic text</p>
-                    <p><code className="bg-gray-100 px-1 rounded">&gt; quote</code> - Blockquote</p>
-                    <p><code className="bg-gray-100 px-1 rounded">- item</code> - List item</p>
-                    <p><code className="bg-gray-100 px-1 rounded">[text](url)</code> - Link</p>
-                    <p><code className="bg-gray-100 px-1 rounded">![alt](url)</code> - Image</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded"># Heading 1</code> - Large heading</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">## Heading 2</code> - Medium heading</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">### Heading 3</code> - Small heading</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">**bold**</code> - Bold text</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">*italic*</code> - Italic text</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">&gt; quote</code> - Blockquote</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">- item</code> - List item</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">[text](url)</code> - Link</p>
+                    <p><code className="bg-[var(--bg-secondary)] text-[var(--text-primary)] px-1 rounded">![alt](url)</code> - Image</p>
                 </div>
             </details>
         </div>

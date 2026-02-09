@@ -7,6 +7,7 @@ export interface CreateBlogDTO {
     category_id: string;
     tags?: string[]; // array of tag IDs
     is_published?: boolean;
+    position?: 'featured' | 'top' | 'standard';
 }
 
 export interface UpdateBlogDTO {
@@ -17,6 +18,7 @@ export interface UpdateBlogDTO {
     category_id?: string;
     tags?: string[];
     is_published?: boolean;
+    position?: 'featured' | 'top' | 'standard';
 }
 
 // Response DTOs
@@ -41,6 +43,7 @@ export interface BlogResponseDTO {
         name: string;
     }>;
     is_published: boolean;
+    position?: 'featured' | 'top' | 'standard';
     published_at?: string;
     views_count: number;
     likes_count: number;

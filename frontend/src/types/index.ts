@@ -19,6 +19,7 @@ export interface Blog {
         name: string;
     }>;
     is_published: boolean;
+    position?: 'featured' | 'top' | 'standard';
     published_at?: string;
     views_count: number;
     likes_count: number;
@@ -34,6 +35,7 @@ export interface CreateBlogDTO {
     category_id: string;
     tags?: string[];
     is_published?: boolean;
+    position?: 'featured' | 'top' | 'standard';
 }
 
 export interface Category {

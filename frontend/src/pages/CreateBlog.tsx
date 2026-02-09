@@ -16,8 +16,10 @@ const CreateBlog = () => {
         category_id: '',
         cover_image: '',
         tags: '',
+        position: 'standard',
     });
     const [error, setError] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -25,6 +27,13 @@ const CreateBlog = () => {
             navigate('/login');
             return;
         }
+
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            setIsAdmin(user.role === 'ADMIN');
+        }
+
         fetchCategories();
     }, [navigate]);
 
@@ -65,6 +74,7 @@ const CreateBlog = () => {
                 category_id: formData.category_id,
                 cover_image: formData.cover_image || undefined,
                 is_published: true,
+                position: formData.position as 'featured' | 'top' | 'standard',
             };
 
             const blog = await blogService.createBlog(blogData);
@@ -79,12 +89,12 @@ const CreateBlog = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gray-50 py-12">
+            <div className="min-h-screen bg-[var(--bg-secondary)] py-12">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-white rounded-2xl shadow-lg p-8">
+                    <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-8">
                         <div className="mb-8">
-                            <h1 className="text-3xl font-bold gradient-text mb-2">Create New Post</h1>
-                            <p className="text-gray-600">Share your thoughts with the world</p>
+                            <h1 className="text-3xl font-serif font-bold text-[var(--text-primary)] mb-2">Create New Post</h1>
+                            <p className="text-[var(--text-secondary)]">Share your thoughts with the world</p>
                         </div>
 
                         {error && (
@@ -95,7 +105,7 @@ const CreateBlog = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="title" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
                                     Title <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -111,7 +121,7 @@ const CreateBlog = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="excerpt" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
                                     Excerpt (Short Description)
                                 </label>
                                 <textarea
@@ -125,7 +135,7 @@ const CreateBlog = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="category_id" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
                                     Category <span className="text-red-500">*</span>
                                 </label>
                                 <select
@@ -154,7 +164,7 @@ const CreateBlog = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="cover_image" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="cover_image" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
                                     Cover Image URL
                                 </label>
                                 <input
@@ -169,7 +179,7 @@ const CreateBlog = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                                <label htmlFor="content" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
                                     Content <span className="text-red-500">*</span>
                                 </label>
                                 <RichTextEditor
@@ -181,11 +191,35 @@ const CreateBlog = () => {
                                 </p>
                             </div>
 
-                            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                            {isAdmin && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label htmlFor="position" className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
+                                            Display Position
+                                        </label>
+                                        <select
+                                            id="position"
+                                            name="position"
+                                            value={formData.position}
+                                            onChange={handleChange}
+                                            className="input-field"
+                                        >
+                                            <option value="standard">Standard (Feed)</option>
+                                            <option value="top">Top Stories (Sidebar)</option>
+                                            <option value="featured">Featured (Hero)</option>
+                                        </select>
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Determine where this post appears on the home page.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-6 border-t border-[var(--border-color)]">
                                 <button
                                     type="button"
                                     onClick={() => navigate('/dashboard')}
-                                    className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg font-medium hover:bg-gray-200 transition"
+                                    className="btn-secondary"
                                 >
                                     Cancel
                                 </button>

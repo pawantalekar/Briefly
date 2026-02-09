@@ -36,7 +36,7 @@ const BlogDetail = () => {
             fetchBlog();
         }
     }, [slug, fetchBlog]);
-    
+
     const handleLike = async () => {
         if (!blog) return;
 
@@ -103,7 +103,7 @@ const BlogDetail = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-[var(--bg-secondary)]">
 
                 {blog.cover_image && (
                     <div className="relative h-96 bg-gray-900">
@@ -120,25 +120,25 @@ const BlogDetail = () => {
 
                     <Link
                         to={`/category/${blog.category.slug}`}
-                        className="inline-block px-4 py-2 bg-primary-100 text-primary-600 text-sm font-medium rounded-full hover:bg-primary-200 transition mb-6"
+                        className="inline-block px-4 py-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)] text-xs uppercase tracking-wider font-semibold hover:bg-[var(--bg-primary)] transition mb-6"
                     >
                         {blog.category.name}
                     </Link>
 
 
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                    <h1 className="text-4xl md:text-5xl font-serif font-black text-[var(--text-primary)] mb-6 leading-tight">
                         {blog.title}
                     </h1>
 
 
-                    <div className="flex items-center justify-between mb-8 pb-8 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-8 pb-8 border-b border-[var(--border-color)]">
                         <div className="flex items-center space-x-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
                                 {blog.author.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">{blog.author.name}</p>
-                                <p className="text-sm text-gray-500">
+                                <p className="font-semibold text-[var(--text-primary)] font-serif">{blog.author.name}</p>
+                                <p className="text-sm text-[var(--text-secondary)]">
                                     {blog.updated_at && blog.updated_at !== blog.created_at ? (
                                         <>
                                             Updated {new Date(blog.updated_at).toLocaleDateString('en-US', {
@@ -158,7 +158,7 @@ const BlogDetail = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center space-x-6 text-gray-500">
+                        <div className="flex items-center space-x-6 text-[var(--text-secondary)]">
                             <div className="flex items-center space-x-2">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -196,7 +196,7 @@ const BlogDetail = () => {
 
 
                     {blog.tags && blog.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-12 pb-12 border-b border-gray-200">
+                        <div className="flex flex-wrap gap-2 mb-12 pb-12 border-b border-[var(--border-color)]">
                             {blog.tags.map((tag) => (
                                 <span
                                     key={tag.id}
@@ -209,8 +209,8 @@ const BlogDetail = () => {
                     )}
 
 
-                    <div className="bg-white rounded-2xl shadow-lg p-8">
-                        <h2 className="text-2xl font-bold mb-6">
+                    <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-8">
+                        <h2 className="text-2xl font-serif font-bold mb-6 text-[var(--text-primary)]">
                             Comments ({comments.length})
                         </h2>
 
@@ -242,14 +242,14 @@ const BlogDetail = () => {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-2 mb-1">
-                                                <p className="font-semibold text-gray-900">
+                                                <p className="font-semibold text-[var(--text-primary)]">
                                                     {comment.user.name}
                                                 </p>
-                                                <span className="text-sm text-gray-500">
+                                                <span className="text-sm text-[var(--text-secondary)]">
                                                     {new Date(comment.created_at).toLocaleDateString()}
                                                 </span>
                                             </div>
-                                            <p className="text-gray-700">{comment.content}</p>
+                                            <p className="text-[var(--text-secondary)]">{comment.content}</p>
                                         </div>
                                     </div>
                                 </div>

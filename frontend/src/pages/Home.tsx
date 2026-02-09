@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import BlogCard from '../components/blog/BlogCard';
 import PageTransition from '../components/common/PageTransition';
@@ -7,207 +7,183 @@ import { blogService, categoryService } from '../services/api';
 import type { Blog, Category } from '../types';
 
 const Home = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+    const categoryslug = searchParams.get('category') || '';
 
     useEffect(() => {
-        const categoryFromUrl = searchParams.get('category');
-        if (categoryFromUrl) {
-            setSelectedCategory(categoryFromUrl);
-        }
-    }, [searchParams]);
+        const fetchCategoriesAndBlogs = async () => {
+            try {
+                setLoading(true);
+                const categoriesData = await categoryService.getAllCategories();
+                setCategories(categoriesData);
 
-    const fetchData = useCallback(async () => {
-        try {
-            setLoading(true);
-            const [blogsData, categoriesData] = await Promise.all([
-                blogService.getAllBlogs(selectedCategory ? { category_id: selectedCategory } : {}),
-                categoryService.getAllCategories(),
-            ]);
-            setBlogs(blogsData);
-            setCategories(categoriesData);
-        } catch (error) {
-            console.error('❌ Error fetching data:', error);
-        } finally {
-            setLoading(false);
-            setIsInitialLoad(false);
-        }
-    }, [selectedCategory]);
+                let categoryId = '';
+                if (categoryslug) {
+                    const matchedCategory = categoriesData.find((c: Category) => c.slug === categoryslug);
+                    if (matchedCategory) {
+                        categoryId = matchedCategory.id;
+                    }
+                }
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+                const blogsData = await blogService.getAllBlogs(categoryId ? { category_id: categoryId } : {});
+                setBlogs(blogsData);
 
-    useEffect(() => {
-        const handleStorageChange = () => {
-            setIsAuthenticated(!!localStorage.getItem('access_token'));
+            } catch (error) {
+                console.error('❌ Error fetching data:', error);
+            } finally {
+                setLoading(false);
+                setIsInitialLoad(false);
+            }
         };
 
+        fetchCategoriesAndBlogs();
+    }, [categoryslug]);
 
-        window.addEventListener('storage', handleStorageChange);
-
-
-        window.addEventListener('focus', handleStorageChange);
-
-
-        handleStorageChange();
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-            window.removeEventListener('focus', handleStorageChange);
-        };
-    }, []);
+    const handleCategoryClick = (slug: string) => {
+        if (slug) {
+            setSearchParams({ category: slug });
+        } else {
+            setSearchParams({});
+        }
+    };
 
     if (loading && isInitialLoad) {
         return <LoadingSpinner />;
     }
 
+    const featuredBlog = blogs.find(blog => blog.position === 'featured') || blogs[0];
+
+    const topStories = blogs.filter(blog => blog.position === 'top');
+    // If no top stories marked, use the next 4 blogs after featured
+    const displayTopStories = topStories.length > 0 ? topStories.slice(0, 4) : blogs.filter(b => b.id !== featuredBlog?.id).slice(0, 4);
+
+    // Latest news is everything else
+    const latestNews = blogs.filter(blog =>
+        blog.id !== featuredBlog?.id &&
+        !displayTopStories.find(ts => ts.id === blog.id)
+    );
+
     return (
         <PageTransition>
-            <div className="min-h-screen">
+            <div className="min-h-screen bg-[var(--bg-secondary)]">
 
-                <section className="bg-gradient-to-br from-primary-600 via-purple-600 to-pink-500 text-white py-20">
+                <div className="bg-[var(--bg-primary)] border-b border-[var(--border-color)] sticky top-16 z-40 py-2">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center max-w-3xl mx-auto">
-                            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                                Discover Stories That
-                                <br />
-                                <span className="text-yellow-300">Matter</span>
-                            </h1>
-                            <p className="text-xl md:text-2xl mb-8 text-white/90">
-                                Explore insightful articles on technology, health, politics, and lifestyle.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Link to="/register" className="px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">
-                                    Start Reading
-                                </Link>
-                                <Link to="/categories" className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white text-white rounded-lg font-semibold hover:bg-white/20 transition">
-                                    Browse Categories
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-
-                <section className="bg-white shadow-sm border-b border-gray-100 sticky top-16 z-40">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        <div className="flex items-center space-x-4 overflow-x-auto">
+                        <div className="flex items-center space-x-6 overflow-x-auto no-scrollbar text-sm font-bold tracking-wide uppercase">
                             <button
-                                onClick={() => setSelectedCategory('')}
-                                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${selectedCategory === ''
-                                    ? 'bg-primary-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                onClick={() => handleCategoryClick('')}
+                                className={`whitespace-nowrap transition-colors ${categoryslug === '' ? 'text-primary-600' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                             >
-                                All
+                                All News
                             </button>
                             {categories.map((category) => (
                                 <button
                                     key={category.id}
-                                    onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${selectedCategory === category.id
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                        }`}
+                                    onClick={() => handleCategoryClick(category.slug)}
+                                    className={`whitespace-nowrap transition-colors ${categoryslug === category.slug ? 'text-primary-600' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                                 >
                                     {category.name}
                                 </button>
                             ))}
                         </div>
                     </div>
-                </section>
+                </div>
 
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Main Grid Layout */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {blogs.length > 0 && !selectedCategory && (
-                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                        <h2 className="text-3xl font-bold mb-8">Featured Story</h2>
-                        <div className="grid md:grid-cols-2 gap-8 bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div className="relative h-96 md:h-auto">
-                                {blogs[0].cover_image ? (
-                                    <img
-                                        src={blogs[0].cover_image}
-                                        alt={blogs[0].title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-primary-500 to-purple-600" />
-                                )}
-                            </div>
-                            <div className="p-8 flex flex-col justify-center">
-                                <span className="px-3 py-1 bg-primary-100 text-primary-600 text-sm font-medium rounded-full w-fit mb-4">
-                                    {blogs[0].category.name}
-                                </span>
-                                <Link to={`/blog/${blogs[0].slug}`}>
-                                    <h3 className="text-3xl font-bold mb-4 hover:text-primary-600 transition">
-                                        {blogs[0].title}
-                                    </h3>
-                                </Link>
-                                <p className="text-gray-600 mb-6 line-clamp-4">
-                                    {blogs[0].excerpt || blogs[0].content.substring(0, 200) + '...'}
-                                </p>
-                                <div className="flex items-center space-x-4 text-gray-500 text-sm">
-                                    <span>{blogs[0].author.name}</span>
-                                    <span>•</span>
-                                    <span>{blogs[0].views_count} views</span>
-                                    <span>•</span>
-                                    <span>{blogs[0].likes_count} likes</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <h2 className="text-3xl font-bold mb-8">
-                        {selectedCategory ? 'Filtered Posts' : 'Latest Posts'}
-                    </h2>
-
-                    {blogs.length === 0 ? (
-                        <div className="text-center py-16">
-                            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p className="text-xl text-gray-600">No blogs found in this category</p>
-                        </div>
-                    ) : (
-                        <div
-                            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300"
-                            style={{ opacity: loading ? 0.5 : 1 }}
-                        >
-                            {blogs.slice(selectedCategory || blogs.length > 1 ? 0 : 1).map((blog) => (
-                                <BlogCard key={blog.id} blog={blog} />
+                        <div className="hidden lg:block lg:col-span-3 space-y-6">
+                            <h3 className="section-title text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--border-color)] pb-2 mb-4">
+                                Top Stories
+                            </h3>
+                            {topStories.map((blog) => (
+                                <BlogCard key={blog.id} blog={blog} compact={true} />
                             ))}
                         </div>
-                    )}
-                </section>
 
+                        <div className="lg:col-span-6">
+                            {featuredBlog && categoryslug === '' && (
+                                <div className="mb-10 group cursor-pointer">
+                                    <Link to={`/blog/${featuredBlog.slug}`}>
+                                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                            {featuredBlog.cover_image && (
+                                                <img
+                                                    src={featuredBlog.cover_image}
+                                                    alt={featuredBlog.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                />
+                                            )}
+                                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 sm:p-8">
+                                                <span className="inline-block px-2 py-0.5 bg-primary-600 text-white text-[10px] font-bold uppercase tracking-widest mb-3">
+                                                    {featuredBlog.category.name}
+                                                </span>
+                                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-white leading-tight mb-2 group-hover:underline decoration-2 underline-offset-4">
+                                                    {featuredBlog.title}
+                                                </h1>
+                                                <p className="text-gray-300 text-lg sm:max-w-2xl line-clamp-2">
+                                                    {featuredBlog.excerpt}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </div>
+                            )}
 
-                <section className="bg-gradient-to-r from-primary-600 to-purple-600 text-white py-16 mt-20">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-4xl font-bold mb-4">Ready to Share Your Story?</h2>
-                        <p className="text-xl mb-8 text-white/90">
-                            Join our community of writers and share your insights with the world.
-                        </p>
-                        {isAuthenticated ? (
-                            <Link to="/create-blog" className="inline-block px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">
-                                Start Writing
-                            </Link>
-                        ) : (
+                            <div className="space-y-8">
+                                <h3 className="section-title text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--border-color)] pb-2 mb-6">
+                                    {categoryslug ? 'Filtered News' : 'Latest Analysis'}
+                                </h3>
 
-                            <Link to="/register" className="inline-block px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">
-                                Create Free Account
-                            </Link>
-                        )}
+                                {blogs.length === 0 ? (
+                                    <div className="py-20 text-center">
+                                        <p className="text-xl text-[var(--text-secondary)]">No updates in this section yet.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        {(categoryslug ? blogs : latestNews).map((blog) => (
+                                            <BlogCard key={blog.id} blog={blog} />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-3">
+                            <h3 className="section-title text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--border-color)] pb-2 mb-4">
+                                Market Pulse
+                            </h3>
+                            <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4">
+                                <p className="text-sm text-[var(--text-secondary)] italic mb-4">Live market data connection unavailable.</p>
+                                {topStories.slice(0, 3).map((blog) => (
+                                    <div key={`sidebar-${blog.id}`} className="mb-4 pb-4 border-b border-[var(--border-color)] last:border-0 last:mb-0 last:pb-0">
+                                        <span className="text-[10px] text-primary-600 font-bold uppercase">Trending</span>
+                                        <Link to={`/blog/${blog.slug}`} className="block mt-1">
+                                            <h4 className="font-bold text-[var(--text-primary)] hover:text-primary-600 font-serif leading-snug">
+                                                {blog.title}
+                                            </h4>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="lg:hidden mt-8">
+                                <h3 className="section-title text-sm font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--border-color)] pb-2 mb-4">
+                                    Top Stories
+                                </h3>
+                                {topStories.map((blog) => (
+                                    <BlogCard key={`mobile-${blog.id}`} blog={blog} compact={true} />
+                                ))}
+                            </div>
+                        </div>
+
                     </div>
-                </section>
+                </div>
             </div>
         </PageTransition>
     );
