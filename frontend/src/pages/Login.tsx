@@ -67,7 +67,7 @@ const Login = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     className="input-field"
-                                    placeholder="you@example.com"
+                                    placeholder="pawan.patil@gmail.com"
                                 />
                             </div>
 

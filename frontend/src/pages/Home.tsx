@@ -3,17 +3,30 @@ import { Link, useSearchParams } from 'react-router-dom';
 import BlogCard from '../components/blog/BlogCard';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { blogService, categoryService } from '../services/api';
+import { blogService, categoryService, marketService } from '../services/api';
 import type { Blog, Category } from '../types';
 
 const Home = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [cryptoData, setCryptoData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const categoryslug = searchParams.get('category') || '';
+
+    useEffect(() => {
+        const fetchMarketData = async () => {
+            try {
+                const data = await marketService.getCryptoData();
+                setCryptoData(data);
+            } catch (err) {
+                console.error("Failed to fetch market data", err);
+            }
+        };
+        fetchMarketData();
+    }, []);
 
     useEffect(() => {
         const fetchCategoriesAndBlogs = async () => {
@@ -159,17 +172,33 @@ const Home = () => {
                                 Market Pulse
                             </h3>
                             <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4">
-                                <p className="text-sm text-[var(--text-secondary)] italic mb-4">Live market data connection unavailable.</p>
-                                {topStories.slice(0, 3).map((blog) => (
-                                    <div key={`sidebar-${blog.id}`} className="mb-4 pb-4 border-b border-[var(--border-color)] last:border-0 last:mb-0 last:pb-0">
-                                        <span className="text-[10px] text-primary-600 font-bold uppercase">Trending</span>
-                                        <Link to={`/blog/${blog.slug}`} className="block mt-1">
-                                            <h4 className="font-bold text-[var(--text-primary)] hover:text-primary-600 font-serif leading-snug">
-                                                {blog.title}
-                                            </h4>
-                                        </Link>
+                                {cryptoData.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {cryptoData.map((coin: any) => (
+                                            <div key={coin.id} className="flex justify-between items-center pb-2 border-b border-[var(--border-color)] last:border-0 last:pb-0">
+                                                <div className="flex items-center space-x-3">
+                                                    <img src={coin.image} alt={coin.name} className="w-6 h-6 rounded-full" />
+                                                    <div>
+                                                        <p className="font-bold text-sm text-[var(--text-primary)]">{coin.name}</p>
+                                                        <p className="text-xs text-[var(--text-secondary)] uppercase">{coin.symbol}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-mono text-sm font-bold text-[var(--text-primary)]">
+                                                        ${coin.current_price.toLocaleString()}
+                                                    </p>
+                                                    <p className={`text-xs font-bold ${coin.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                                        {coin.price_change_percentage_24h.toFixed(2)}%
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                ) : (
+                                    <div className="flex justify-center py-4">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="lg:hidden mt-8">
