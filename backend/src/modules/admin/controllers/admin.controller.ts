@@ -23,7 +23,7 @@ export const adminController = {
     async deleteUser(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId } = req.params;
-            await adminService.deleteUser(userId[0]);
+            await adminService.deleteUser(userId as string);
             res.status(204).send();
         } catch (error) {
             next(error);
@@ -75,7 +75,7 @@ export const adminController = {
         try {
             const { blogId } = req.params;
             const { is_published } = req.body;
-            await adminService.toggleBlogPublish(blogId[0], is_published);
+            await adminService.toggleBlogPublish(blogId as string, is_published);
             res.json({ message: 'Blog status updated successfully' });
         } catch (error) {
             next(error);
