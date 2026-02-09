@@ -4,13 +4,14 @@ import BlogCard from '../components/blog/BlogCard';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { blogService, categoryService, marketService } from '../services/api';
-import type { Blog, Category } from '../types';
+import type { Blog, Category, CryptoCoin } from '../types';
 
 const Home = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [cryptoData, setCryptoData] = useState<any[]>([]);
+    const [cryptoData, setCryptoData] = useState<CryptoCoin[]>([]);
+    const [marketLoading, setMarketLoading] = useState(true);
     const [loading, setLoading] = useState(true);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -23,6 +24,8 @@ const Home = () => {
                 setCryptoData(data);
             } catch (err) {
                 console.error("Failed to fetch market data", err);
+            } finally {
+                setMarketLoading(false);
             }
         };
         fetchMarketData();
@@ -172,9 +175,13 @@ const Home = () => {
                                 Market Pulse
                             </h3>
                             <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4">
-                                {cryptoData.length > 0 ? (
+                                {marketLoading ? (
+                                    <div className="flex justify-center py-4">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                                    </div>
+                                ) : cryptoData.length > 0 ? (
                                     <div className="space-y-4">
-                                        {cryptoData.map((coin: any) => (
+                                        {cryptoData.map((coin) => (
                                             <div key={coin.id} className="flex justify-between items-center pb-2 border-b border-[var(--border-color)] last:border-0 last:pb-0">
                                                 <div className="flex items-center space-x-3">
                                                     <img src={coin.image} alt={coin.name} className="w-6 h-6 rounded-full" />
@@ -195,9 +202,9 @@ const Home = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="flex justify-center py-4">
-                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-                                    </div>
+                                    <p className="text-sm text-[var(--text-secondary)] italic text-center py-4">
+                                        Market data unavailable
+                                    </p>
                                 )}
                             </div>
 
