@@ -9,6 +9,15 @@ export class AuthController {
             const dto: RegisterDTO = req.body;
             const result = await authService.register(dto);
 
+            // Set HttpOnly cookie
+            res.cookie('access_token', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                sameSite: 'lax', // Protect against CSRF
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                path: '/'
+            });
+
             res.status(201).json({
                 success: true,
                 message: 'User registered successfully',
@@ -24,6 +33,15 @@ export class AuthController {
         try {
             const dto: LoginDTO = req.body;
             const result = await authService.login(dto);
+
+            // Set HttpOnly cookie
+            res.cookie('access_token', result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                path: '/'
+            });
 
             res.status(200).json({
                 success: true,
@@ -61,7 +79,12 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
+            res.clearCookie('access_token', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/'
+            });
 
             res.status(200).json({
                 success: true,

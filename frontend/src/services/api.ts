@@ -48,8 +48,15 @@ export const authService = {
     },
 
     logout: async () => {
-        await apiClient.post('/auth/logout');
-        localStorage.removeItem('access_token');
+        try {
+            await apiClient.post('/auth/logout');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        } finally {
+            localStorage.removeItem('user');
+            window.dispatchEvent(new Event('storage'));
+            window.location.href = '/login';
+        }
     },
 };
 

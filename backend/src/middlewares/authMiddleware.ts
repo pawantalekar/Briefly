@@ -7,16 +7,20 @@ export const authMiddleware = (
     next: NextFunction
 ) => {
     try {
-        const authHeader = req.headers.authorization;
+        let token;
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (req.cookies && req.cookies.access_token) {
+            token = req.cookies.access_token;
+        } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+            token = req.headers.authorization.substring(7);
+        }
+
+        if (!token) {
             return res.status(401).json({
                 success: false,
                 message: 'No token provided',
             });
         }
-
-        const token = authHeader.substring(7);
 
         const decoded = authService.verifyToken(token);
         (req as any).user = decoded;
