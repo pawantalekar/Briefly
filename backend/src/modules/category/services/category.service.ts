@@ -3,6 +3,7 @@ import { CreateCategoryDTO, UpdateCategoryDTO, CategoryResponseDTO } from '../do
 import { generateSlug } from '../../../shared/utils/slugGenerator';
 import { logger } from '../../../shared/utils/logger';
 
+
 export class CategoryService {
     async createCategory(dto: CreateCategoryDTO): Promise<CategoryResponseDTO> {
         try {

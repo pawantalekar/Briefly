@@ -180,7 +180,7 @@ VITE_API_BASE_URL=http://localhost:5000/api
 
 ### Notes
 
-- Frontend uses `access_token` in localStorage
+- Frontend uses `access_token` in Cookies
 - Backend uses JWT with 7-day expiry
 - All passwords are hashed with bcrypt
 - API responses follow standard format: `{ success: boolean, data: any, message?: string }`

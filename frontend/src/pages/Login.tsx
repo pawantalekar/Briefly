@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import PageTransition from '../components/common/PageTransition';
-
 const Login = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -26,7 +25,7 @@ const Login = () => {
 
         try {
             const response = await authService.login(formData.email, formData.password);
-            localStorage.setItem('access_token', response.token);
+            // Token is set by HttpOnly cookie
             localStorage.setItem('user', JSON.stringify(response.user));
             window.dispatchEvent(new Event('storage'));
             navigate('/');

@@ -40,8 +40,8 @@ const BlogDetail = () => {
     const handleLike = async () => {
         if (!blog) return;
 
-        const token = localStorage.getItem('access_token');
-        if (!token) {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
             alert('Please login to like this blog');
             return;
         }
@@ -62,8 +62,8 @@ const BlogDetail = () => {
         e.preventDefault();
         if (!blog || !commentText.trim()) return;
 
-        const token = localStorage.getItem('access_token');
-        if (!token) {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
             alert('Please login to comment');
             return;
         }

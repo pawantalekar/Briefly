@@ -53,17 +53,14 @@ const EditBlog = () => {
     }, [id]);
 
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
             navigate('/login');
             return;
         }
 
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            setIsAdmin(user.role === 'ADMIN');
-        }
+        const user = JSON.parse(userStr);
+        setIsAdmin(user.role === 'ADMIN');
 
         fetchBlogAndCategories();
     }, [id, fetchBlogAndCategories, navigate]);

@@ -12,16 +12,13 @@ const Dashboard = () => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
+        const userData = localStorage.getItem('user');
+        if (!userData) {
             navigate('/login');
             return;
         }
 
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            setUser(JSON.parse(userData));
-        }
+        setUser(JSON.parse(userData));
 
         fetchMyBlogs();
     }, [navigate]);

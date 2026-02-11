@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import { config } from './config/config';
 import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
@@ -11,11 +12,13 @@ dotenv.config();
 const app: Application = express();
 const PORT = config.port;
 
+app.use(cookieParser());
+
 // CORS Configuration
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5175',
-    process.env.FRONTEND_URL, // Add this to Render environment variables
+    process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({
@@ -42,9 +45,9 @@ app.use('/api', routes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    logger.info(`🚀 Server running on http://localhost:${PORT}`);
-    logger.info(`📚 API available at http://localhost:${PORT}/api`);
-    logger.info(`🏥 Health check: http://localhost:${PORT}/api/health`);
+    logger.info(` Server running on http://localhost:${PORT}`);
+    logger.info(` API available at http://localhost:${PORT}/api`);
+    logger.info(` Health check: http://localhost:${PORT}/api/health`);
 });
 
 export default app;

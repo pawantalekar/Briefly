@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { authService } from '../../services/api';
 import { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -10,10 +11,9 @@ const Navbar = () => {
 
     useEffect(() => {
         const checkAuth = () => {
-            const token = localStorage.getItem('access_token');
-            setIsLoggedIn(!!token);
-
             const userStr = localStorage.getItem('user');
+            setIsLoggedIn(!!userStr);
+
             if (userStr) {
                 const user = JSON.parse(userStr);
                 setIsAdmin(user.role === 'ADMIN');
@@ -26,12 +26,8 @@ const Navbar = () => {
         return () => window.removeEventListener('storage', checkAuth);
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        setIsLoggedIn(false);
-        setIsAdmin(false);
-        window.location.href = '/';
+    const handleLogout = async () => {
+        await authService.logout();
     };
 
     return (

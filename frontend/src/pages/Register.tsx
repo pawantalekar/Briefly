@@ -43,7 +43,6 @@ const Register = () => {
                 formData.email,
                 formData.password
             );
-            localStorage.setItem('access_token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
             window.dispatchEvent(new Event('storage'));
             navigate('/dashboard');
