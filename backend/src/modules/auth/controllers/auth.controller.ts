@@ -4,19 +4,25 @@ import { RegisterDTO, LoginDTO } from '../domain/auth.dto';
 import { logger } from '../../../shared/utils/logger';
 
 export class AuthController {
+    private getCookieOptions() {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        return {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/'
+        } as const;
+    }
+
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const dto: RegisterDTO = req.body;
             const result = await authService.register(dto);
 
             // Set HttpOnly cookie
-            res.cookie('access_token', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                sameSite: 'lax', // Protect against CSRF
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                path: '/'
-            });
+            res.cookie('access_token', result.token, this.getCookieOptions());
 
             res.status(201).json({
                 success: true,
@@ -35,13 +41,7 @@ export class AuthController {
             const result = await authService.login(dto);
 
             // Set HttpOnly cookie
-            res.cookie('access_token', result.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                path: '/'
-            });
+            res.cookie('access_token', result.token, this.getCookieOptions());
 
             res.status(200).json({
                 success: true,
@@ -79,12 +79,7 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            res.clearCookie('access_token', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/'
-            });
+            res.clearCookie('access_token', this.getCookieOptions());
 
             res.status(200).json({
                 success: true,
