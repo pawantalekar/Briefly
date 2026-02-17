@@ -7,13 +7,16 @@ export class AuthController {
     private getCookieOptions() {
         const isProduction = process.env.NODE_ENV === 'production';
 
-        return {
+        const options = {
             httpOnly: true,
             secure: isProduction,
             sameSite: isProduction ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             path: '/'
         } as const;
+
+        logger.info(`🍪 Setting Cookie: isProduction=${isProduction}, secure=${options.secure}, sameSite=${options.sameSite}`);
+        return options;
     }
 
     async register(req: Request, res: Response, next: NextFunction): Promise<void> {
