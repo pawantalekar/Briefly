@@ -52,6 +52,7 @@ app.listen(PORT, () => {
     logger.info(` Server running on http://localhost:${PORT}`);
     logger.info(` API available at http://localhost:${PORT}/api`);
     logger.info(` Health check: http://localhost:${PORT}/api/health`);
+    logger.info(` Environment: ${process.env.NODE_ENV}`);
 });
 
 export default app;
