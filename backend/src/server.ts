@@ -14,6 +14,10 @@ const PORT = config.port;
 
 app.use(cookieParser());
 
+// Trust proxy is required for secure cookies to work behind a load balancer/proxy (e.g. Vercel, Render)
+app.set('trust proxy', 1);
+
+
 // CORS Configuration
 const allowedOrigins = [
     'http://localhost:5173',
