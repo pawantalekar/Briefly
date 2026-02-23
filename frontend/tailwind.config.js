@@ -16,7 +16,7 @@ export default {
                     400: '#38bdf8',
                     500: '#0ea5e9',
                     600: '#0284c7',
-                    700: '#000000', 
+                    700: '#000000',
                     800: '#075985',
                     900: '#0c4a6e',
                 },
@@ -29,7 +29,8 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
-                serif: ['Merriweather', 'Georgia', 'serif'],
+                serif: ['Playfair Display', 'Georgia', 'serif'],
+                reading: ['Lora', 'Georgia', 'serif'],
             },
         },
     },
