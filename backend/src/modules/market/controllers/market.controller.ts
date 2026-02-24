@@ -15,6 +15,19 @@ export class MarketController {
             next(error);
         }
     }
+
+    async getStocks(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const data = await marketService.getStockData();
+            res.status(200).json({
+                success: true,
+                data: data
+            });
+        } catch (error) {
+            logger.error('Error in MarketController getStocks:', error);
+            next(error);
+        }
+    }
 }
 
 export const marketController = new MarketController();

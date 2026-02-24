@@ -96,4 +96,8 @@ export const marketService = {
         const response = await apiClient.get('/market/crypto');
         return response.data.data;
     },
+    getStockData: async () => {
+        const response = await apiClient.get('/market/stocks');
+        return response.data.data;
+    },
 };
