@@ -140,6 +140,29 @@ export class BlogController {
             next(error);
         }
     }
+
+    async searchBlogs(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { q } = req.query;
+
+            if (!q || typeof q !== 'string' || q.trim().length === 0) {
+                res.status(400).json({ success: false, message: 'Search query is required' });
+                return;
+            }
+
+            const blogs = await blogService.searchBlogs(q);
+
+            res.status(200).json({
+                success: true,
+                data: blogs,
+                count: blogs.length,
+                query: q,
+            });
+        } catch (error) {
+            logger.error('Error in searchBlogs controller:', error);
+            next(error);
+        }
+    }
 }
 
 export const blogController = new BlogController();

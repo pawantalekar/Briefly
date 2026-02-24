@@ -29,6 +29,14 @@ export const blogService = {
         const response = await apiClient.put<{ success: boolean; data: Blog }>(`/blogs/${id}`, data);
         return response.data.data;
     },
+
+    searchBlogs: async (query: string) => {
+        const response = await apiClient.get<{ success: boolean; data: Blog[]; count: number; query: string }>(
+            '/blogs/search',
+            { params: { q: query } }
+        );
+        return response.data.data;
+    },
 };
 
 export const authService = {

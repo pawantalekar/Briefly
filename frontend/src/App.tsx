@@ -12,6 +12,7 @@ import EditBlog from './pages/EditBlog';
 import Categories from './pages/Categories';
 import About from './pages/About';
 import AdminPanel from './pages/AdminPanel';
+import SearchResults from './pages/SearchResults';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/create-blog" element={<CreateBlog />} />
             <Route path="/edit-blog/:id" element={<EditBlog />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/search" element={<SearchResults />} />
           </Routes>
         </main>
         <Footer />

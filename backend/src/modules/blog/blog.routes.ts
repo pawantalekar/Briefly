@@ -6,7 +6,9 @@ import { authMiddleware } from '../../middlewares/authMiddleware';
 
 const router = Router();
 
-// Public routes
+// Public routes — specific paths MUST come before dynamic /:id
+router.get('/search', blogController.searchBlogs.bind(blogController));
+router.get('/my/blogs', authMiddleware, blogController.getMyBlogs.bind(blogController));
 router.get('/', blogController.getAllBlogs.bind(blogController));
 router.get('/slug/:slug', blogController.getBlogBySlug.bind(blogController));
 router.get('/:id', blogController.getBlogById.bind(blogController));
@@ -30,12 +32,6 @@ router.delete(
     '/:id',
     authMiddleware,
     blogController.deleteBlog.bind(blogController)
-);
-
-router.get(
-    '/my/blogs',
-    authMiddleware,
-    blogController.getMyBlogs.bind(blogController)
 );
 
 export default router;
