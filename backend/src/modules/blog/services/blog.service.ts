@@ -134,6 +134,17 @@ export class BlogService {
             throw new Error('Failed to retrieve author blogs');
         }
     }
+
+    async searchBlogs(query: string): Promise<BlogResponseDTO[]> {
+        try {
+            if (!query || query.trim().length === 0) return [];
+            const blogs = await blogDAO.search(query.trim());
+            return blogs as unknown as BlogResponseDTO[];
+        } catch (error) {
+            logger.error('Error in searchBlogs service:', error);
+            throw new Error('Search failed');
+        }
+    }
 }
 
 export const blogService = new BlogService();

@@ -156,6 +156,39 @@ export class BlogDAO {
             throw error;
         }
     }
+    async search(query: string): Promise<BlogModel[]> {
+        try {
+            const { data, error } = await supabase
+                .from(this.tableName)
+                .select(`
+                    *,
+                    author:users(id, name),
+                    category:categories(id, name, slug)
+                `)
+                .textSearch('title', query, { type: 'websearch', config: 'english' })
+                .eq('is_published', true)
+                .order('views_count', { ascending: false })
+                .limit(20);
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                const { data: fallback } = await supabase
+                    .from(this.tableName)
+                    .select(`*, author:users(id, name), category:categories(id, name, slug)`)
+                    .eq('is_published', true)
+                    .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+                    .order('views_count', { ascending: false })
+                    .limit(20);
+                return fallback || [];
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Error searching blogs in DAO:', error);
+            throw error;
+        }
+    }
 }
 
 export const blogDAO = new BlogDAO();
