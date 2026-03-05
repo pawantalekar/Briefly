@@ -1,40 +1,34 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { blogService } from '../services/api';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import type { Blog, User } from '../types';
 
 const Dashboard = () => {
-    const navigate = useNavigate();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<User | null>(null);
+    // ProtectedRoute guarantees 'user' exists in localStorage before this renders
+    const [user] = useState<User | null>(() => {
+        const raw = localStorage.getItem('user');
+        return raw ? JSON.parse(raw) : null;
+    });
 
     useEffect(() => {
-        const userData = localStorage.getItem('user');
-        if (!userData) {
-            navigate('/login');
-            return;
-        }
-
-        setUser(JSON.parse(userData));
+        const fetchMyBlogs = async () => {
+            try {
+                setLoading(true);
+                const data = await blogService.getMyBlogs();
+                setBlogs(data);
+            } catch (error) {
+                console.error('Error fetching blogs:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
         fetchMyBlogs();
-    }, [navigate]);
-
-    const fetchMyBlogs = async () => {
-        try {
-            setLoading(true);
-            const data = await blogService.getMyBlogs();
-            console.log('📊 My Blogs:', data);
-            setBlogs(data);
-        } catch (error) {
-            console.error('Error fetching blogs:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, []);
 
     if (loading) {
         return <LoadingSpinner />;

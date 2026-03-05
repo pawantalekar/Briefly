@@ -61,6 +61,7 @@ export const authService = {
         } catch (error) {
             console.error('Logout failed:', error);
         } finally {
+            localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.dispatchEvent(new Event('storage'));
             window.location.href = '/login';

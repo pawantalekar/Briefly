@@ -25,7 +25,7 @@ const Login = () => {
 
         try {
             const response = await authService.login(formData.email, formData.password);
-            // Token is set by HttpOnly cookie
+            localStorage.setItem('token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
             window.dispatchEvent(new Event('storage'));
             navigate('/');
