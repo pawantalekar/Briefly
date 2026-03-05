@@ -24,10 +24,11 @@ export class BlogController {
 
     async getAllBlogs(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { category_id, limit = 10, offset = 0 } = req.query;
+            const { category_id, tag_id, limit = 10, offset = 0 } = req.query;
 
             const blogs = await blogService.getAllBlogs({
                 category_id: category_id as string,
+                tag_id: tag_id as string,
                 limit: Number(limit),
                 offset: Number(offset),
             });

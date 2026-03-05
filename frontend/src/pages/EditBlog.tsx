@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { blogService, categoryService } from '../services/api';
+import { blogService, categoryService, tagService } from '../services/api';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import type { Category } from '../types';
+import type { Category, Tag } from '../types';
 
 const EditBlog = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,6 +13,9 @@ const EditBlog = () => {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [categories, setCategories] = useState<Category[]>([]);
+    const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [newTagInput, setNewTagInput] = useState('');
     const [formData, setFormData] = useState({
         title: '',
         content: '',
@@ -27,9 +30,10 @@ const EditBlog = () => {
     const fetchBlogAndCategories = useCallback(async () => {
         try {
             setLoading(true);
-            const [blogData, categoriesData] = await Promise.all([
+            const [blogData, categoriesData, tagsData] = await Promise.all([
                 blogService.getBlogById(id as string),
-                categoryService.getAllCategories()
+                categoryService.getAllCategories(),
+                tagService.getAllTags(),
             ]);
 
             if (blogData) {
@@ -42,8 +46,12 @@ const EditBlog = () => {
                     position: blogData.position || 'standard',
                 });
                 setUpdatedAt(blogData.updated_at);
+                if (blogData.tags && blogData.tags.length > 0) {
+                    setSelectedTagIds(blogData.tags.map((t: { id: string }) => t.id));
+                }
             }
             setCategories(categoriesData);
+            setAvailableTags(tagsData);
         } catch (error) {
             console.error('Error fetching blog:', error);
             setError('Failed to load blog');
@@ -72,6 +80,27 @@ const EditBlog = () => {
         });
     };
 
+    const toggleTag = (tagId: string) => {
+        setSelectedTagIds((prev) =>
+            prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+        );
+    };
+
+    const handleAddNewTag = async (e?: React.KeyboardEvent | React.MouseEvent) => {
+        if (e && 'key' in e && e.key !== 'Enter') return;
+        if (e) e.preventDefault();
+        const name = newTagInput.trim();
+        if (!name) return;
+        try {
+            const tag = await tagService.createTag(name);
+            setAvailableTags((prev) => prev.some((t) => t.id === tag.id) ? prev : [...prev, tag]);
+            setSelectedTagIds((prev) => prev.includes(tag.id) ? prev : [...prev, tag.id]);
+            setNewTagInput('');
+        } catch {
+            console.error('Failed to create tag');
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -91,6 +120,7 @@ const EditBlog = () => {
                 category_id: formData.category_id,
                 cover_image: formData.cover_image || undefined,
                 position: formData.position as 'featured' | 'top' | 'standard',
+                tags: selectedTagIds,
             };
 
             await blogService.updateBlog(id as string, updateData);
@@ -189,6 +219,50 @@ const EditBlog = () => {
                                     className="input-field"
                                     placeholder="https://example.com/image.jpg"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
+                                    Tags
+                                </label>
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {availableTags.map((tag) => (
+                                        <button
+                                            key={tag.id}
+                                            type="button"
+                                            onClick={() => toggleTag(tag.id)}
+                                            className={`px-3 py-1 rounded-full text-sm font-medium border transition-all ${selectedTagIds.includes(tag.id)
+                                                ? 'bg-primary-600 text-white border-primary-600'
+                                                : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:border-primary-500 hover:text-primary-600'
+                                                }`}
+                                        >
+                                            #{tag.name}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={newTagInput}
+                                        onChange={(e) => setNewTagInput(e.target.value)}
+                                        onKeyDown={handleAddNewTag}
+                                        placeholder="Type a new tag and press Enter..."
+                                        className="input-field flex-1 text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAddNewTag}
+                                        disabled={!newTagInput.trim()}
+                                        className="px-3 py-2 rounded border border-[var(--border-color)] text-[var(--text-secondary)] hover:border-primary-500 hover:text-primary-600 disabled:opacity-40 transition-all text-sm font-medium"
+                                    >
+                                        + Add
+                                    </button>
+                                </div>
+                                {selectedTagIds.length > 0 && (
+                                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                                        {selectedTagIds.length} tag{selectedTagIds.length > 1 ? 's' : ''} selected
+                                    </p>
+                                )}
                             </div>
 
 

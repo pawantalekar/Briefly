@@ -3,19 +3,21 @@ import { Link, useSearchParams } from 'react-router-dom';
 import BlogCard from '../components/blog/BlogCard';
 import PageTransition from '../components/common/PageTransition';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { blogService, categoryService, marketService } from '../services/api';
-import type { Blog, Category, CryptoCoin } from '../types';
+import { blogService, categoryService, marketService, tagService } from '../services/api';
+import type { Blog, Category, CryptoCoin, Tag } from '../types';
 
 const Home = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [tags, setTags] = useState<Tag[]>([]);
     const [cryptoData, setCryptoData] = useState<CryptoCoin[]>([]);
     const [marketLoading, setMarketLoading] = useState(true);
     const [loading, setLoading] = useState(true);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const categoryslug = searchParams.get('category') || '';
+    const selectedTagId = searchParams.get('tag') || '';
 
     useEffect(() => {
         const fetchMarketData = async () => {
@@ -29,6 +31,18 @@ const Home = () => {
             }
         };
         fetchMarketData();
+    }, []);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const data = await tagService.getAllTags();
+                setTags(data);
+            } catch (err) {
+                console.error('Failed to fetch tags', err);
+            }
+        };
+        fetchTags();
     }, []);
 
     useEffect(() => {
@@ -46,7 +60,10 @@ const Home = () => {
                     }
                 }
 
-                const blogsData = await blogService.getAllBlogs(categoryId ? { category_id: categoryId } : {});
+                const blogsData = await blogService.getAllBlogs({
+                    ...(categoryId ? { category_id: categoryId } : {}),
+                    ...(selectedTagId ? { tag_id: selectedTagId } : {}),
+                });
                 setBlogs(blogsData);
 
             } catch (error) {
@@ -58,14 +75,20 @@ const Home = () => {
         };
 
         fetchCategoriesAndBlogs();
-    }, [categoryslug]);
+    }, [categoryslug, selectedTagId]);
 
     const handleCategoryClick = (slug: string) => {
-        if (slug) {
-            setSearchParams({ category: slug });
-        } else {
-            setSearchParams({});
-        }
+        const next: Record<string, string> = {};
+        if (slug) next.category = slug;
+        if (selectedTagId) next.tag = selectedTagId;
+        setSearchParams(next);
+    };
+
+    const handleTagClick = (tagId: string) => {
+        const next: Record<string, string> = {};
+        if (categoryslug) next.category = categoryslug;
+        if (tagId && tagId !== selectedTagId) next.tag = tagId;
+        setSearchParams(next);
     };
 
     if (loading && isInitialLoad) {
@@ -107,6 +130,26 @@ const Home = () => {
                                 </button>
                             ))}
                         </div>
+
+                        {tags.length > 0 && (
+                            <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar mt-2 pb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] whitespace-nowrap shrink-0 pr-1">
+                                    Tags:
+                                </span>
+                                {tags.map((tag) => (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => handleTagClick(tag.id)}
+                                        className={`whitespace-nowrap px-2.5 py-0.5 rounded-full text-[11px] font-semibold border transition-all ${selectedTagId === tag.id
+                                                ? 'bg-primary-600 text-white border-primary-600'
+                                                : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:border-primary-500 hover:text-primary-600'
+                                            }`}
+                                    >
+                                        #{tag.name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
