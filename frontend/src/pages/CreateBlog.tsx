@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { blogService, categoryService } from '../services/api';
+import { blogService, categoryService, tagService } from '../services/api';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import PageTransition from '../components/common/PageTransition';
-import type { Category } from '../types';
+import type { Category, Tag } from '../types';
 
 const CreateBlog = () => {
     const navigate = useNavigate();
     const [categories, setCategories] = useState<Category[]>([]);
+    const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [newTagInput, setNewTagInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
@@ -15,7 +18,6 @@ const CreateBlog = () => {
         excerpt: '',
         category_id: '',
         cover_image: '',
-        tags: '',
         position: 'standard',
     });
     const [error, setError] = useState('');
@@ -32,6 +34,7 @@ const CreateBlog = () => {
         setIsAdmin(user.role === 'ADMIN');
 
         fetchCategories();
+        fetchTags();
     }, [navigate]);
 
     const fetchCategories = async () => {
@@ -42,6 +45,36 @@ const CreateBlog = () => {
         } catch (error) {
             console.error('Error fetching categories:', error);
             setError('Failed to load categories. Please refresh the page.');
+        }
+    };
+
+    const fetchTags = async () => {
+        try {
+            const data = await tagService.getAllTags();
+            setAvailableTags(data);
+        } catch (error) {
+            console.error('Error fetching tags:', error);
+        }
+    };
+
+    const toggleTag = (tagId: string) => {
+        setSelectedTagIds((prev) =>
+            prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+        );
+    };
+
+    const handleAddNewTag = async (e?: React.KeyboardEvent | React.MouseEvent) => {
+        if (e && 'key' in e && e.key !== 'Enter') return;
+        if (e) e.preventDefault();
+        const name = newTagInput.trim();
+        if (!name) return;
+        try {
+            const tag = await tagService.createTag(name);
+            setAvailableTags((prev) => prev.some((t) => t.id === tag.id) ? prev : [...prev, tag]);
+            setSelectedTagIds((prev) => prev.includes(tag.id) ? prev : [...prev, tag.id]);
+            setNewTagInput('');
+        } catch {
+            console.error('Failed to create tag');
         }
     };
 
@@ -72,6 +105,7 @@ const CreateBlog = () => {
                 cover_image: formData.cover_image || undefined,
                 is_published: true,
                 position: formData.position as 'featured' | 'top' | 'standard',
+                tags: selectedTagIds,
             };
 
             const blog = await blogService.createBlog(blogData);
@@ -173,6 +207,61 @@ const CreateBlog = () => {
                                     className="input-field"
                                     placeholder="https://example.com/image.jpg (optional)"
                                 />
+                            </div>
+
+                            <div className="relative">
+                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wide">
+                                    Tags
+                                </label>
+                                {selectedTagIds.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        {selectedTagIds.map((id) => {
+                                            const tag = availableTags.find((t) => t.id === id);
+                                            return tag ? (
+                                                <span key={id} className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-primary-600 text-white border border-primary-600">
+                                                    #{tag.name}
+                                                    <button type="button" onClick={() => toggleTag(id)} className="ml-1 hover:opacity-70 leading-none">&times;</button>
+                                                </span>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                )}
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={newTagInput}
+                                        onChange={(e) => setNewTagInput(e.target.value)}
+                                        onKeyDown={handleAddNewTag}
+                                        placeholder="Search or create a tag..."
+                                        className="input-field w-full text-sm"
+                                        autoComplete="off"
+                                    />
+                                    {newTagInput.trim() && (
+                                        <div className="absolute z-10 left-0 right-0 mt-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded shadow-lg max-h-48 overflow-y-auto">
+                                            {availableTags
+                                                .filter((t) => t.name.toLowerCase().includes(newTagInput.trim().toLowerCase()) && !selectedTagIds.includes(t.id))
+                                                .map((t) => (
+                                                    <button
+                                                        key={t.id}
+                                                        type="button"
+                                                        onMouseDown={(e) => { e.preventDefault(); toggleTag(t.id); setNewTagInput(''); }}
+                                                        className="w-full text-left px-4 py-2 text-sm hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]"
+                                                    >
+                                                        #{t.name}
+                                                    </button>
+                                                ))}
+                                            {!availableTags.some((t) => t.name.toLowerCase() === newTagInput.trim().toLowerCase()) && (
+                                                <button
+                                                    type="button"
+                                                    onMouseDown={(e) => { e.preventDefault(); handleAddNewTag(); }}
+                                                    className="w-full text-left px-4 py-2 text-sm text-primary-600 hover:bg-[var(--bg-secondary)] font-medium"
+                                                >
+                                                    + Create &ldquo;{newTagInput.trim()}&rdquo;
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div>

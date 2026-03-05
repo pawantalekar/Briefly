@@ -38,6 +38,12 @@ export interface CreateBlogDTO {
     position?: 'featured' | 'top' | 'standard';
 }
 
+export interface Tag {
+    id: string;
+    name: string;
+    slug: string;
+}
+
 export interface Category {
     id: string;
     name: string;

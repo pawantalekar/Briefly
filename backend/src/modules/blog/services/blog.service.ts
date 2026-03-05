@@ -24,10 +24,8 @@ export class BlogService {
 
             const blog = await blogDAO.create(blogData);
 
-
-            if (dto.tags && dto.tags.length > 0) {
-
-                logger.info(`Tags to be associated: ${dto.tags.join(', ')}`);
+            if (dto.tags && dto.tags.length > 0 && blog.id) {
+                await blogDAO.saveBlogTags(blog.id, dto.tags);
             }
 
             return blog as unknown as BlogResponseDTO;
@@ -63,7 +61,7 @@ export class BlogService {
         }
     }
 
-    async getAllBlogs(filters?: { category_id?: string; limit?: number; offset?: number }): Promise<BlogResponseDTO[]> {
+    async getAllBlogs(filters?: { category_id?: string; tag_id?: string; limit?: number; offset?: number }): Promise<BlogResponseDTO[]> {
         try {
             const blogs = await blogDAO.findAll({ ...filters, is_published: true });
             return blogs as unknown as BlogResponseDTO[];
@@ -99,6 +97,11 @@ export class BlogService {
             }
 
             const updatedBlog = await blogDAO.update(id, updateData);
+
+            if (dto.tags !== undefined) {
+                await blogDAO.replaceBlogTags(id, dto.tags);
+            }
+
             return updatedBlog as unknown as BlogResponseDTO;
         } catch (error) {
             logger.error('Error in updateBlog service:', error);

@@ -63,19 +63,24 @@ export class BlogDAO {
         }
     }
 
-    async findAll(filters?: { category_id?: string; is_published?: boolean; limit?: number; offset?: number }): Promise<BlogModel[]> {
+    async findAll(filters?: { category_id?: string; tag_id?: string; is_published?: boolean; limit?: number; offset?: number }): Promise<BlogModel[]> {
         try {
             let query = supabase
                 .from(this.tableName)
                 .select(`
                     *,
                     author:users(id, name),
-                    category:categories(id, name, slug)
+                    category:categories(id, name, slug),
+                    tags:blog_tags(tag:tags(id, name))
                 `)
                 .order('created_at', { ascending: false });
 
             if (filters?.category_id) {
                 query = query.eq('category_id', filters.category_id);
+            }
+
+            if (filters?.tag_id) {
+                query = (query as any).eq('blog_tags.tag_id', filters.tag_id);
             }
 
             if (filters?.is_published !== undefined) {
@@ -93,6 +98,13 @@ export class BlogDAO {
             const { data, error } = await query;
 
             if (error) throw error;
+
+            if (filters?.tag_id) {
+                return (data || []).filter((blog: any) =>
+                    Array.isArray(blog.tags) && blog.tags.some((t: any) => t?.tag?.id === filters.tag_id)
+                );
+            }
+
             return data || [];
         } catch (error) {
             logger.error('Error finding all blogs in DAO:', error);
@@ -186,6 +198,34 @@ export class BlogDAO {
             return data;
         } catch (error) {
             logger.error('Error searching blogs in DAO:', error);
+            throw error;
+        }
+    }
+
+    async saveBlogTags(blogId: string, tagIds: string[]): Promise<void> {
+        try {
+            const rows = tagIds.map((tag_id) => ({ blog_id: blogId, tag_id }));
+            const { error } = await supabase.from('blog_tags').insert(rows);
+            if (error) throw error;
+        } catch (error) {
+            logger.error('Error saving blog tags in DAO:', error);
+            throw error;
+        }
+    }
+
+    async replaceBlogTags(blogId: string, tagIds: string[]): Promise<void> {
+        try {
+            const { error: deleteError } = await supabase
+                .from('blog_tags')
+                .delete()
+                .eq('blog_id', blogId);
+            if (deleteError) throw deleteError;
+
+            if (tagIds.length > 0) {
+                await this.saveBlogTags(blogId, tagIds);
+            }
+        } catch (error) {
+            logger.error('Error replacing blog tags in DAO:', error);
             throw error;
         }
     }
