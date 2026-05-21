@@ -17,6 +17,9 @@ app.use(cookieParser());
 // Trust proxy is required for secure cookies to work behind a load balancer/proxy (e.g. Vercel, Render)
 app.set('trust proxy', 1);
 
+// Disable ETags globally — prevents Express from sending 304 Not Modified
+// responses that cause browsers to replay stale/empty cached API data.
+app.set('etag', false);
 
 // CORS Configuration
 const allowedOrigins = [
@@ -42,6 +45,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// No-cache headers for all API responses
+// Prevents browsers from caching API responses and serving stale data.
+app.use('/api', (_req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
 
 app.use('/api', routes);
 
