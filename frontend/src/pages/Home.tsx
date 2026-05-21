@@ -23,7 +23,7 @@ const Home = () => {
         const fetchMarketData = async () => {
             try {
                 const data = await marketService.getCryptoData();
-                setCryptoData(data);
+                setCryptoData(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error("Failed to fetch market data", err);
             } finally {
@@ -37,7 +37,7 @@ const Home = () => {
         const fetchTags = async () => {
             try {
                 const data = await tagService.getAllTags();
-                setTags(data);
+                setTags(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error('Failed to fetch tags', err);
             }
@@ -50,11 +50,12 @@ const Home = () => {
             try {
                 setLoading(true);
                 const categoriesData = await categoryService.getAllCategories();
-                setCategories(categoriesData);
+                const safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
+                setCategories(safeCategories);
 
                 let categoryId = '';
                 if (categoryslug) {
-                    const matchedCategory = categoriesData.find((c: Category) => c.slug === categoryslug);
+                    const matchedCategory = safeCategories.find((c: Category) => c.slug === categoryslug);
                     if (matchedCategory) {
                         categoryId = matchedCategory.id;
                     }
@@ -64,7 +65,7 @@ const Home = () => {
                     ...(categoryId ? { category_id: categoryId } : {}),
                     ...(selectedTagId ? { tag_id: selectedTagId } : {}),
                 });
-                setBlogs(blogsData);
+                setBlogs(Array.isArray(blogsData) ? blogsData : []);
 
             } catch (error) {
                 console.error('❌ Error fetching data:', error);
