@@ -8,7 +8,7 @@ const Footer = () => {
 
     useEffect(() => {
         categoryService.getAllCategories()
-            .then(data => setCategories(data.slice(0, 4)))
+            .then(data => setCategories(Array.isArray(data) ? data.slice(0, 4) : []))
             .catch(err => console.error(err));
     }, []);
     return (

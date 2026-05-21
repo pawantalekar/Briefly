@@ -4,7 +4,7 @@ import type { Blog, CreateBlogDTO, Tag } from '../types';
 export const blogService = {
     getAllBlogs: async (params?: { category_id?: string; tag_id?: string; limit?: number; offset?: number }) => {
         const response = await apiClient.get<{ success: boolean; data: Blog[] }>('/blogs', { params });
-        return response.data.data;
+        return response.data.data ?? [];
     },
     getBlogById: async (id: string) => {
         const response = await apiClient.get<{ success: boolean; data: Blog }>(`/blogs/${id}`);
@@ -35,7 +35,7 @@ export const blogService = {
             '/blogs/search',
             { params: { q: query } }
         );
-        return response.data.data;
+        return response.data.data ?? [];
     },
 };
 
@@ -72,7 +72,7 @@ export const authService = {
 export const categoryService = {
     getAllCategories: async () => {
         const response = await apiClient.get('/categories');
-        return response.data.data;
+        return response.data.data ?? [];
     },
 };
 
@@ -103,18 +103,18 @@ export const likeService = {
 export const marketService = {
     getCryptoData: async () => {
         const response = await apiClient.get('/market/crypto');
-        return response.data.data;
+        return response.data.data ?? [];
     },
     getStockData: async () => {
         const response = await apiClient.get('/market/stocks');
-        return response.data.data;
+        return response.data.data ?? [];
     },
 };
 
 export const tagService = {
     getAllTags: async (): Promise<Tag[]> => {
         const response = await apiClient.get<{ success: boolean; data: Tag[] }>('/tags');
-        return response.data.data;
+        return response.data.data ?? [];
     },
     createTag: async (name: string): Promise<Tag> => {
         const response = await apiClient.post<{ success: boolean; data: Tag }>('/tags', { name });
