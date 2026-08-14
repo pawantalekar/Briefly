@@ -54,6 +54,17 @@ app.use('/api', (_req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    const start = Date.now();
+    const ip = req.ip || req.socket.remoteAddress;
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
+        logger[level](`[${res.statusCode}] ${req.method} ${req.path} - ${ip} - ${duration}ms`);
+    });
+    next();
+});
+
 app.use('/api', routes);
 
 
@@ -64,6 +75,31 @@ app.listen(PORT, () => {
     logger.info(` API available at http://localhost:${PORT}/api`);
     logger.info(` Health check: http://localhost:${PORT}/api/health`);
     logger.info(` Environment: ${process.env.NODE_ENV}`);
+
+    // ── Keep-alive self-ping ──────────────────────────────────────────────
+    // Render's free tier sleeps after 15 min of inactivity. Pinging every
+    // 14 min from inside the process keeps it warm as a secondary defence.
+    // Primary: use UptimeRobot (external) for more reliable keep-alive.
+    if (process.env.NODE_ENV === 'production') {
+        const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
+
+        setInterval(() => {
+            const http = require('http');
+            const req = http.get(
+                `http://localhost:${PORT}/api/health`,
+                (res: any) => {
+                    logger.info(`Keep-alive ping → ${res.statusCode}`);
+                    res.resume(); // discard response body to free memory
+                }
+            );
+            req.on('error', (err: Error) => {
+                logger.warn(`Keep-alive ping failed: ${err.message}`);
+            });
+            req.end();
+        }, PING_INTERVAL_MS);
+
+        logger.info(' Keep-alive ping scheduled every 14 minutes');
+    }
 });
 
 export default app;

@@ -8,16 +8,12 @@ export class LikeController {
         try {
             const dto: CreateLikeDTO = req.body;
             const userId = (req as any).user.id;
-
+            logger.info(`[LIKE] Toggle like - userId=${userId} blogId=${dto.blog_id}`);
             const result = await likeService.toggleLike(dto, userId);
-
-            res.status(200).json({
-                success: true,
-                message: result.message,
-                data: { liked: result.liked },
-            });
-        } catch (error) {
-            logger.error('Error in toggleLike controller:', error);
+            logger.info(`[LIKE] Like toggled - userId=${userId} blogId=${dto.blog_id} liked=${result.liked}`);
+            res.status(200).json({ success: true, message: result.message, data: { liked: result.liked } });
+        } catch (error: any) {
+            logger.error(`[LIKE] Toggle like failed - ${error.message}`);
             next(error);
         }
     }
@@ -26,15 +22,11 @@ export class LikeController {
         try {
             const { blogId } = req.params;
             const userId = (req as any).user?.id;
-
+            logger.info(`[LIKE] Get like stats - blogId=${blogId} userId=${userId || 'guest'}`);
             const stats = await likeService.getLikeStats(blogId as string, userId);
-
-            res.status(200).json({
-                success: true,
-                data: stats,
-            });
-        } catch (error) {
-            logger.error('Error in getLikeStats controller:', error);
+            res.status(200).json({ success: true, data: stats });
+        } catch (error: any) {
+            logger.error(`[LIKE] Get like stats failed - blogId=${req.params.blogId} - ${error.message}`);
             next(error);
         }
     }

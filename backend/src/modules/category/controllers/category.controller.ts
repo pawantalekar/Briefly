@@ -7,29 +7,24 @@ export class CategoryController {
     async createCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const dto: CreateCategoryDTO = req.body;
+            logger.info(`[CATEGORY] Create category - name="${dto.name}"`);
             const category = await categoryService.createCategory(dto);
-
-            res.status(201).json({
-                success: true,
-                message: 'Category created successfully',
-                data: category,
-            });
-        } catch (error) {
-            logger.error('Error in createCategory controller:', error);
+            logger.info(`[CATEGORY] Category created - categoryId=${category.id} slug=${category.slug}`);
+            res.status(201).json({ success: true, message: 'Category created successfully', data: category });
+        } catch (error: any) {
+            logger.error(`[CATEGORY] Create category failed - ${error.message}`);
             next(error);
         }
     }
 
     async getAllCategories(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            logger.info(`[CATEGORY] Get all categories`);
             const categories = await categoryService.getAllCategories();
-
-            res.status(200).json({
-                success: true,
-                data: categories,
-            });
-        } catch (error) {
-            logger.error('Error in getAllCategories controller:', error);
+            logger.info(`[CATEGORY] Fetched ${categories.length} categories`);
+            res.status(200).json({ success: true, data: categories });
+        } catch (error: any) {
+            logger.error(`[CATEGORY] Get all categories failed - ${error.message}`);
             next(error);
         }
     }
@@ -37,22 +32,16 @@ export class CategoryController {
     async getCategoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id } = req.params;
+            logger.info(`[CATEGORY] Get category - categoryId=${id}`);
             const category = await categoryService.getCategoryById(id as string);
-
             if (!category) {
-                res.status(404).json({
-                    success: false,
-                    message: 'Category not found',
-                });
+                logger.warn(`[CATEGORY] Category not found - categoryId=${id}`);
+                res.status(404).json({ success: false, message: 'Category not found' });
                 return;
             }
-
-            res.status(200).json({
-                success: true,
-                data: category,
-            });
-        } catch (error) {
-            logger.error('Error in getCategoryById controller:', error);
+            res.status(200).json({ success: true, data: category });
+        } catch (error: any) {
+            logger.error(`[CATEGORY] Get category failed - categoryId=${req.params.id} - ${error.message}`);
             next(error);
         }
     }
@@ -61,16 +50,12 @@ export class CategoryController {
         try {
             const { id } = req.params;
             const dto: UpdateCategoryDTO = req.body;
-
+            logger.info(`[CATEGORY] Update category - categoryId=${id}`);
             const category = await categoryService.updateCategory(id as string, dto);
-
-            res.status(200).json({
-                success: true,
-                message: 'Category updated successfully',
-                data: category,
-            });
-        } catch (error) {
-            logger.error('Error in updateCategory controller:', error);
+            logger.info(`[CATEGORY] Category updated - categoryId=${id}`);
+            res.status(200).json({ success: true, message: 'Category updated successfully', data: category });
+        } catch (error: any) {
+            logger.error(`[CATEGORY] Update category failed - categoryId=${req.params.id} - ${error.message}`);
             next(error);
         }
     }
@@ -78,14 +63,12 @@ export class CategoryController {
     async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id } = req.params;
+            logger.info(`[CATEGORY] Delete category - categoryId=${id}`);
             await categoryService.deleteCategory(id as string);
-
-            res.status(200).json({
-                success: true,
-                message: 'Category deleted successfully',
-            });
-        } catch (error) {
-            logger.error('Error in deleteCategory controller:', error);
+            logger.info(`[CATEGORY] Category deleted - categoryId=${id}`);
+            res.status(200).json({ success: true, message: 'Category deleted successfully' });
+        } catch (error: any) {
+            logger.error(`[CATEGORY] Delete category failed - categoryId=${req.params.id} - ${error.message}`);
             next(error);
         }
     }

@@ -8,16 +8,12 @@ export class CommentController {
         try {
             const dto: CreateCommentDTO = req.body;
             const userId = (req as any).user.id;
-
+            logger.info(`[COMMENT] Create comment - userId=${userId} blogId=${dto.blog_id} parentId=${dto.parent_id || 'none'}`);
             const comment = await commentService.createComment(dto, userId);
-
-            res.status(201).json({
-                success: true,
-                message: 'Comment created successfully',
-                data: comment,
-            });
-        } catch (error) {
-            logger.error('Error in createComment controller:', error);
+            logger.info(`[COMMENT] Comment created - commentId=${comment.id}`);
+            res.status(201).json({ success: true, message: 'Comment created successfully', data: comment });
+        } catch (error: any) {
+            logger.error(`[COMMENT] Create comment failed - ${error.message}`);
             next(error);
         }
     }
@@ -25,15 +21,12 @@ export class CommentController {
     async getCommentsByBlogId(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { blogId } = req.params;
+            logger.info(`[COMMENT] Get comments - blogId=${blogId}`);
             const comments = await commentService.getCommentsByBlogId(blogId as string);
-
-            res.status(200).json({
-                success: true,
-                data: comments,
-                count: comments.length,
-            });
-        } catch (error) {
-            logger.error('Error in getCommentsByBlogId controller:', error);
+            logger.info(`[COMMENT] Fetched ${comments.length} comments for blogId=${blogId}`);
+            res.status(200).json({ success: true, data: comments, count: comments.length });
+        } catch (error: any) {
+            logger.error(`[COMMENT] Get comments failed - blogId=${req.params.blogId} - ${error.message}`);
             next(error);
         }
     }
@@ -43,16 +36,12 @@ export class CommentController {
             const { id } = req.params;
             const dto: UpdateCommentDTO = req.body;
             const userId = (req as any).user.id;
-
+            logger.info(`[COMMENT] Update comment - commentId=${id} userId=${userId}`);
             const comment = await commentService.updateComment(id as string, dto, userId);
-
-            res.status(200).json({
-                success: true,
-                message: 'Comment updated successfully',
-                data: comment,
-            });
-        } catch (error) {
-            logger.error('Error in updateComment controller:', error);
+            logger.info(`[COMMENT] Comment updated - commentId=${id}`);
+            res.status(200).json({ success: true, message: 'Comment updated successfully', data: comment });
+        } catch (error: any) {
+            logger.error(`[COMMENT] Update comment failed - commentId=${req.params.id} - ${error.message}`);
             next(error);
         }
     }
@@ -61,15 +50,12 @@ export class CommentController {
         try {
             const { id } = req.params;
             const userId = (req as any).user.id;
-
+            logger.info(`[COMMENT] Delete comment - commentId=${id} userId=${userId}`);
             await commentService.deleteComment(id as string, userId);
-
-            res.status(200).json({
-                success: true,
-                message: 'Comment deleted successfully',
-            });
-        } catch (error) {
-            logger.error('Error in deleteComment controller:', error);
+            logger.info(`[COMMENT] Comment deleted - commentId=${id}`);
+            res.status(200).json({ success: true, message: 'Comment deleted successfully' });
+        } catch (error: any) {
+            logger.error(`[COMMENT] Delete comment failed - commentId=${req.params.id} - ${error.message}`);
             next(error);
         }
     }
